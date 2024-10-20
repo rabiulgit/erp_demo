@@ -399,26 +399,28 @@ class LeaveController extends Controller
 
     public function approveLeave($id)
     {
-        $userId=auth()->user()->id;
-        $roleId = DB::table('model_has_roles')->where('model_id', $userId)->value('role_id');
-
-        ApprovalStatus::create([
-            "module" => "leave",
-            "module_id" => $id,
-            "user_id" => $userId,
-            "role_id" => $roleId,
-            "status" => 1
-        ]);
-
-        $totalApproval = Approval::where('module', 'leave')->count();
-
-        $totalApproved = ApprovalStatus::where('module', 'leave')->where('module_id', $id)->count();
-
-        if($totalApproval == $totalApproved){
+            $userId=auth()->user()->id;
+            $roleId = DB::table('model_has_roles')->where('model_id', $userId)->value('role_id');
+    
+            ApprovalStatus::create([
+                "module" => "leave",
+                "module_id" => $id,
+                "user_id" => $userId,
+                "role_id" => $roleId,
+                "status" => 1
+            ]);
+    
+            $totalApproval = Approval::where('module', operator: 'leave')->count();
+    
+            $totalApproved = ApprovalStatus::where('module', 'leave')->where('module_id', $id)->count();
+    
             Leave::where('id', $id)->update(['status' => 'Approved']);
-        }
-
-        return redirect()->route('leave.index')->with('success', __('Leave Approved.'));
+    
+            // if($totalApproval == $totalApproved){
+            //     Leave::where('id', $id)->update(['status' => 'Approved']);
+            // }
+    
+            return redirect()->route('leave.index')->with('success', __('Leave Approved.'));
     }
 
     public function rejectLeave($id)
