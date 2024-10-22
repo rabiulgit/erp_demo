@@ -133,6 +133,7 @@
                                             {{Form::month('month',isset($_GET['month'])?$_GET['month']:date('Y-m'),array('class'=>'month-btn form-control'))}}
                                         </div>
                                     </div>
+                                    @if (auth()->user()->type != 'Employee')
                                     <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
                                         <div class="btn-box">
                                             {{ Form::label('branch', __('Branch'),['class'=>'form-label']) }}
@@ -162,6 +163,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-auto">

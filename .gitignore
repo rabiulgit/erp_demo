@@ -2,7 +2,7 @@
 /.idea
 /.vscode
 /vendor/srmklive/paypal/tests/Mocks/samples/sample2.pdf
-/vendor/srmklive/paypal/tests/Mocks/samples/sample.pdf 
+/vendor/srmklive/paypal/tests/Mocks/samples/sample.pdf
 /.phpunit.cache
 /node_modules
 /public/build
@@ -23,6 +23,7 @@ yarn-error.log
 /.idea
 /.vscode
 /storage/framework/sessions/*
+/storage/framework/views/*
 storage/framework/cache/data
 storage/framework/cache/data/*
 storage/framework/cache/*
