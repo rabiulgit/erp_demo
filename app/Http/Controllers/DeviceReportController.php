@@ -10,6 +10,7 @@ use App\Models\Holiday;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DeviceReportController extends Controller
 {
@@ -141,7 +142,6 @@ class DeviceReportController extends Controller
             } else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
-
         } else {
             if (\Auth::user()->can('manage attendance')) {
 
@@ -151,11 +151,19 @@ class DeviceReportController extends Controller
                 $data['branch'] = __('All');
                 $data['department'] = __('All');
 
-                $employees = Employee::select('id', 'name', 'employee_id');
+                $employees = DB::table('employees')->leftJoin('leaves', function ($join) {
+                    $join->on('employees.id', '=', 'leaves.employee_id')
+                        ->where('leaves.status', '=', 'approved');
+                })->leftJoin('meetings', function ($join) {
+                    $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
+                })
+                    ->select('employees.name', 'employees.id', 'employees.created_by', 'employees.employee_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date');
+
+
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
                     $employees->whereIn('id', $request->employee_id);
                 }
-                $employees = $employees->where('created_by', \Auth::user()->creatorId());
+                $employees = $employees->where('employees.created_by', \Auth::user()->creatorId());
 
                 if (!empty($request->branch)) {
                     $employees->where('branch_id', $request->branch);
@@ -167,7 +175,7 @@ class DeviceReportController extends Controller
                     $data['department'] = !empty(Department::find($request->department)) ? Department::find($request->department)->name : '';
                 }
 
-                $employees = $employees->get()->pluck('name', 'employee_id');
+                $employees = $employees->get();
 
                 if (!empty($request->month)) {
                     $currentdate = strtotime($request->month);
@@ -190,16 +198,20 @@ class DeviceReportController extends Controller
                 $totalPresent = $totalLeave = $totalEarlyLeave = 0;
                 $ovetimeHours = $overtimeMins = $earlyleaveHours = $earlyleaveMins = $lateHours = $lateMins = 0;
                 foreach ($employees as $id => $employee) {
-                    $attendances['name'] = $employee;
+
+                    // dd($employee);
+                    $attendances['name'] = $employee->name;
 
                     foreach ($dates as $date) {
                         $dateFormat = $year . '-' . $month . '-' . $date;
 
                         if ($dateFormat <= date('Y-m-d')) {
-                            $employeeAttendance = AttendanceLog::where('employee_id', $id)->where('date', $dateFormat)->first();
+                            $employeeAttendance = AttendanceLog::where('employee_id', $employee->employee_id)->where('date', $dateFormat)->first();
                             $dayName = date('l', strtotime($employeeAttendance?->date));
                             $holidays = Holiday::get();
                             $government_holiday = false;
+                            $employee_leave = false;
+                            $employee_meeting = false;
 
                             foreach ($holidays ?? [] as $holiday) {
                                 $start = Carbon::parse($holiday->date);
@@ -213,7 +225,25 @@ class DeviceReportController extends Controller
                                 }
                             }
 
-                            if (!empty($employeeAttendance) && $employeeAttendance->status == 'Present') {
+                            if (!empty($employeeAttendance) && $employee->l_start_date != null) {
+
+                                $start = Carbon::parse($employee->l_start_date);
+                                $end = Carbon::parse($employee->l_end_date);
+                                $check = Carbon::parse($employeeAttendance?->date);
+
+                                if ($check >= $start && $check <= $end) {
+                                    $employee_leave = true;
+                                }
+                            }
+
+                            if ($employee->emp_ids != null && $employeeAttendance?->date == $employee->m_date) {
+                                $employee_meeting = true;
+                            }
+
+                            if (!empty($employeeAttendance) && $employee->emp_ids != null && $employee_meeting) {
+                                $attendanceStatus[$date] = 'M';
+                            } else if (!empty($employeeAttendance) && $employeeAttendance->status == 'Present') {
+
                                 $attendanceStatus[$date] = 'P';
                                 $totalPresent += 1;
                                 if ($employeeAttendance->overtime > 0) {
@@ -235,7 +265,7 @@ class DeviceReportController extends Controller
                                     $lateHours += $lateTime->hour; // Get hours
                                     $lateMins += $lateTime->minute; // Get minutes
                                 }
-                            } elseif (!empty($employeeAttendance) && $employeeAttendance->status == 'Leave') {
+                            } elseif (!empty($employeeAttendance) && $employee_leave) {
                                 $attendanceStatus[$date] = 'A';
                                 $totalLeave += 1;
                             } elseif ($dayName == "Friday" || $dayName == "Saturday") {
@@ -262,14 +292,12 @@ class DeviceReportController extends Controller
                 $data['totalPresent'] = $totalPresent;
                 $data['totalLeave'] = $totalLeave;
                 $data['curMonth'] = $curMonth;
-                // dd($employeesAttendance);
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
             } else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
         }
-
     }
 
     public function getdepartment(Request $request)
