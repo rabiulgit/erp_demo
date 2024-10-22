@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
 use App\Models\Branch;
+use App\Models\Meeting;
 use App\Services\AttendanceService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -15,6 +16,7 @@ use App\Models\IpRestrict;
 use App\Models\User;
 use App\Models\Utility;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -29,9 +31,6 @@ class AttendanceController extends Controller
 
     public function index(Request $request)
     {
-        // first create entry for every exmployees
-        // $this->createDailyAttendance();
-
         if (\Auth::user()->can('manage attendance')) {
 
             $employees = Employee::get()->pluck('name', 'employee_id');
@@ -79,7 +78,6 @@ class AttendanceController extends Controller
                 $attendanceEmployee = $attendanceEmployee->get();
             } else {
 
-                // $employee = Employee::select('id', 'employee_id')->where('created_by', \Auth::user()->creatorId());
                 $employee = Employee::select('id', 'employee_id');
 
 
@@ -96,11 +94,19 @@ class AttendanceController extends Controller
                     $employee->where('department_id', $request->department);
                 }
 
-
                 $employee = $employee->get()->pluck('employee_id');
 
+                $attendanceEmployee = DB::table('attendance_logs')
+                    ->join('employees', 'attendance_logs.employee_id', '=', 'employees.employee_id')
+                    ->leftJoin('leaves', function ($join) {
+                        $join->on('employees.id', '=', 'leaves.employee_id')
+                            ->where('leaves.status', '=', 'approved');
+                    })
+                    ->leftJoin('meetings', function ($join) {
+                        $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
+                    })
+                    ->select('attendance_logs.*', 'employees.name', 'employees.id as emp_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date');
 
-                $attendanceEmployee = AttendanceLog::whereIn('employee_id', $employee);
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
                     $month = date('m', strtotime($request->month));
@@ -110,14 +116,14 @@ class AttendanceController extends Controller
                     $end_date   = date($year . '-' . $month . '-t');
 
                     $attendanceEmployee->whereBetween(
-                        'date',
+                        'attendance_logs.date',
                         [
                             $start_date,
                             $end_date,
                         ]
                     );
                 } elseif ($request->type == 'daily' && !empty($request->date)) {
-                    $attendanceEmployee->where('date', $request->date);
+                    $attendanceEmployee->where('attendance_logs.date', $request->date);
                 } else {
                     $month      = date('m');
                     $year       = date('Y');
@@ -125,7 +131,7 @@ class AttendanceController extends Controller
                     $end_date   = date($year . '-' . $month . '-t');
 
                     $attendanceEmployee->whereBetween(
-                        'date',
+                        'attendance_logs.date',
                         [
                             $start_date,
                             $end_date,
@@ -133,11 +139,10 @@ class AttendanceController extends Controller
                     );
                 }
 
-
-              $attendanceEmployee = $attendanceEmployee
-                ->orderBy('date', 'desc')
-                ->orderBy('employee_id', 'asc')
-                ->get();
+                $attendanceEmployee = $attendanceEmployee
+                    ->orderBy('attendance_logs.date', 'desc')
+                    ->orderBy('employee_id', 'asc')
+                    ->get();
             }
 
             return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'employees'));
@@ -163,8 +168,6 @@ class AttendanceController extends Controller
         if (\Auth::user()->can('create attendance')) {
             // Fetch logs from the attendance device using the attendance service
             $logs = $this->attendanceService->getAttendanceLogs();
-
-            dd( $logs);
 
             if ($logs) {
                 // Get today's date once
@@ -205,7 +208,6 @@ class AttendanceController extends Controller
                     } else if ($existingLog && $existingLog->clock_in != "00:00:00") {
                         // Already clocked in but no clock-out: treat as clock-out
                         $eventType = 'clock_out';
-                      
                     }
 
                     if ($eventType == 'clock_in') {

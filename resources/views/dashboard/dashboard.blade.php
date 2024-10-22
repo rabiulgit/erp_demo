@@ -115,7 +115,7 @@
                                 <h4>{{ __('Device Attendance Status') }}</h4>
                             </div>
                             <div class="card-body dash-card-body">
-                                @if ($attendance->status === 'Present')
+                                @if ($attendance?->status === 'Present')
                                     <div class="row">
                                         <div class="col-md-6 mb-2">
                                             <div class="info text-md">
@@ -159,7 +159,7 @@
                                     <div class="col-md-6">
                                         <div class="info text-lg">
                                             <strong class="font-bold">{{__('Status')}} : </strong>
-                                            <span style="background-color: red; color: white; padding: 5px; border-radius: 5px; border: none;" class="text-md">{{$attendance->status}}</span>
+                                            <span style="background-color: red; color: white; padding: 5px; border-radius: 5px; border: none;" class="text-md">{{$attendance?->status}}</span>
                                         </div>
                                     </div>
                                 </div>
