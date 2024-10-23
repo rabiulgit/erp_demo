@@ -8,6 +8,7 @@ class Meeting extends Model
 {
     protected $fillable = [
         'branch_id',
+        'to_adddress',
         'department_id',
         'employee_id',
         'title',
@@ -16,4 +17,8 @@ class Meeting extends Model
         'note',
         'created_by',
     ];
+
+    public function branch(){
+        return $this->belongsTo(Branch::class);
+    }
 }

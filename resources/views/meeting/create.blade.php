@@ -46,6 +46,12 @@
                 {{Form::text('title',null,array('class'=>'form-control','placeholder'=>__('Enter Meeting Title')))}}
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                {{Form::label('title',__('Meeting Address'),['class'=>'form-label'])}}
+                {{Form::text('to_address',null,array('class'=>'form-control','placeholder'=>__('Enter Meeting Address')))}}
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="form-group">
                 {{Form::label('date',__('Meeting Date'),['class'=>'form-label'])}}
