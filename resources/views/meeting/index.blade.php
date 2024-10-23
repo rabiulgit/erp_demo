@@ -31,6 +31,8 @@
                             <thead>
                             <tr>
                                 <th>{{__('Meeting title')}}</th>
+                                <th>{{__('From Address')}}</th>
+                                <th>{{__('To Address')}}</th>
                                 <th>{{__('Meeting Date')}}</th>
                                 <th>{{__('Meeting Time')}}</th>
                                 @if(Gate::check('edit meeting') || Gate::check('delete meeting'))
@@ -42,6 +44,8 @@
                             @foreach ($meetings as $meeting)
                                 <tr>
                                     <td>{{ $meeting->title }}</td>
+                                    <td>{{ $meeting?->branch->name }}</td>
+                                    <td>{{ $meeting->to_address ?? "" }}</td>
                                     <td>{{  \Auth::user()->dateFormat($meeting->date) }}</td>
                                     <td>{{  \Auth::user()->timeFormat($meeting->time) }}</td>
                                     @if(Gate::check('edit meeting') || Gate::check('delete meeting'))

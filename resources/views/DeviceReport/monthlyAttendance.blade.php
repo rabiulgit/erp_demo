@@ -275,7 +275,7 @@
                                         @foreach($attendance['status'] as $status)
                                             <td>
                                                 @if($status=='M')
-                                                <i class="badge bg-info p-2 rounded">{{__('M')}}</i>
+                                                <i class="badge bg-info p-2 rounded">{{__('P/M')}}</i>
                                                 @elseif($status=='P')
                                                     <i class="badge bg-success p-2 rounded">{{__('P')}}</i>
                                                 @elseif($status=='A')

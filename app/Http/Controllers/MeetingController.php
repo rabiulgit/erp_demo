@@ -19,7 +19,7 @@ class MeetingController extends Controller
             $employees = Employee::get();
             if (Auth::user()->type == 'Employee') {
                 $current_employee = Employee::where('user_id', '=', \Auth::user()->id)->first();
-                $meetings         = Meeting::orderBy('meetings.id', 'desc')
+                $meetings         = Meeting::with('branch')->orderBy('meetings.id', 'desc')
                     ->leftjoin('meeting_employees', 'meetings.id', '=', 'meeting_employees.meeting_id')
                     ->where('meeting_employees.employee_id', '=', $current_employee->id)
                     ->orWhere(function ($q) {
@@ -28,7 +28,7 @@ class MeetingController extends Controller
                     })
                     ->get();
             } else {
-                $meetings = Meeting::where('created_by', '=', \Auth::user()->creatorId())->get();
+                $meetings = Meeting::with('branch')->where('created_by', '=', \Auth::user()->creatorId())->get();
             }
 
             return view('meeting.index', compact('meetings', 'employees'));
@@ -58,11 +58,11 @@ class MeetingController extends Controller
 
     public function store(Request $request)
     {
-
         $validator = \Validator::make(
             $request->all(),
             [
                 'branch_id' => 'required',
+                'to_address' => 'nullable',
                 'department_id' => 'required',
                 'employee_id' => 'required',
                 'department_id' => 'required',
@@ -83,6 +83,7 @@ class MeetingController extends Controller
             $meeting->department_id = json_encode($request->department_id);
             $meeting->employee_id   = json_encode($request->employee_id);
             $meeting->title         = $request->title;
+            $meeting->to_address    = $request->to_address;
             $meeting->date          = $request->date;
             $meeting->time          = $request->time;
             $meeting->note          = $request->note;
@@ -104,7 +105,6 @@ class MeetingController extends Controller
                 $meetingEmployee->created_by  = \Auth::user()->creatorId();
                 $meetingEmployee->save();
             }
-
 
             //For Notification
             $setting  = Utility::settings(\Auth::user()->creatorId());
