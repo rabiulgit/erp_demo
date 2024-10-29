@@ -81,12 +81,12 @@ class SingleMeetingController extends Controller
         return view('single-meeting.edit', compact('branch', 'singleMeeting'));
     }
 
-    public function update(SingleMeetingRequest $request, SingleMeeting $meeting)
+    public function update(SingleMeetingRequest $request, SingleMeeting $employee_meeting)
     {
         if (\Auth::user()->can('create meeting')) {
             if (Auth::user()->type == 'Employee') {
                 // Call the service to create or update the machine
-                $response = SingleMeetingService::createOrUpdateMeeting($request->validated(), $meeting);
+                $response = SingleMeetingService::createOrUpdateMeeting($request->validated(), $employee_meeting);
                 // Redirect back with appropriate message
                 return redirect()
                     ->route('employee-meetings.index')
