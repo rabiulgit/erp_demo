@@ -490,6 +490,14 @@ $show_dashboard = \App\Models\User::show_dashboard();
                                     href="{{ route('leave.index') }}">{{ __('Manage Leave') }}</a>
                             </li>
                             @endcan
+
+                            @can('manage leave')
+                            <li
+                                class="dash-item {{ Request::route()->getName() == 'leave.index' ? 'active' : '' }}">
+                                <a class="dash-link"
+                                    href="{{ route('employee-meetings.index') }}">{{ __('Employee Meeting') }}</a>
+                            </li>
+                            @endcan
                           
                            @can('manage attendance')
                             <li
