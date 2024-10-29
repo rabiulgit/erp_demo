@@ -105,8 +105,17 @@ class AttendanceController extends Controller
                     ->leftJoin('meetings', function ($join) {
                         $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
                     })
-                    ->select('attendance_logs.*', 'employees.name', 'employees.id as emp_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date');
-
+                    ->select(
+                        'attendance_logs.*',
+                        'employees.name',
+                        'employees.id as emp_id',
+                        'leaves.start_date as l_start_date',
+                        'leaves.end_date as l_end_date',
+                        'meetings.employee_id as emp_ids',
+                        'meetings.date as m_date'
+                    )
+                    ->groupBy('employees.id', 'attendance_logs.date') // Group by employee ID and date
+                ;
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
                     $month = date('m', strtotime($request->month));
