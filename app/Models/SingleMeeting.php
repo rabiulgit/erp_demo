@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Meeting extends Model
+class SingleMeeting extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'id',
         'branch_id',
-        'to_adddress',
-        'department_id',
         'employee_id',
+        'to_address',
         'title',
         'date',
         'time',
@@ -21,5 +22,8 @@ class Meeting extends Model
 
     public function branch(){
         return $this->belongsTo(Branch::class);
+    }
+    public function employee(){
+        return $this->belongsTo(Employee::class);
     }
 }

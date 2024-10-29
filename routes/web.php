@@ -84,6 +84,7 @@ use App\Http\Controllers\PaystackPaymentController;
 use App\Http\Controllers\PaytabController;
 use App\Http\Controllers\PaytmPaymentController;
 use App\Http\Controllers\PaytrController;
+use App\Http\Controllers\SingleMeetingController;
 use App\Http\Controllers\YooKassaController;
 use App\Http\Controllers\PerformanceTypeController;
 use App\Http\Controllers\PermissionController;
@@ -1727,3 +1728,6 @@ Route::prefix('/device-attendanceemployee')->middleware(['auth', 'XSS'])->group(
         Route::post('reports-monthly/getemployee', [DeviceReportController::class, 'getemployee'])->name('report.attendance.getemployee');
     });
 });
+
+// Route for single employee meeting
+Route::resource('employee-meetings', SingleMeetingController::class)->except(['show']);

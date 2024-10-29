@@ -157,7 +157,8 @@ class DeviceReportController extends Controller
                 })->leftJoin('meetings', function ($join) {
                     $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
                 })
-                    ->select('employees.name', 'employees.id', 'employees.created_by', 'employees.employee_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date');
+                    ->select('employees.name', 'employees.id', 'employees.created_by', 'employees.employee_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date')
+                    ->groupBy('employees.id');
 
 
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {

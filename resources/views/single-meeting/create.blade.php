@@ -1,4 +1,4 @@
-{{Form::open(array('url'=>'meeting','method'=>'post'))}}
+{{Form::open(array('url'=>'employee-meetings','method'=>'post'))}}
 <div class="modal-body">
     {{-- start for ai module--}}
     @php
@@ -14,49 +14,22 @@
     @endif
     {{-- end for ai module--}}
     <div class="row">
+     
+        <div class="col-md-12">
+            <div class="form-group">
+                {{Form::label('title',__('Meeting Title'),['class'=>'form-label'])}}
+                {{Form::text('title',null,array('class'=>'form-control','placeholder'=>__('Enter Meeting Title')))}}
+            </div>
+        </div>
         <div class="col-md-12">
             <div class="form-group">
                 {{Form::label('branch_id',__('Branch'),['class'=>'form-label'])}}
                 <select class="form-control select" name="branch_id" id="branch_id" placeholder="Select Branch">
                     <option value="">{{__('Select Branch')}}</option>
-                    <option value="0">{{__('All Branch')}}</option>
-                    @foreach($branch as $key=> $branch)
+                    @foreach($branch ?? [] as $branch)
                         <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                     @endforeach
                 </select>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-        <div class="form-group" id="department_div" data-selected-departments="{{ json_encode($selectedDepartments ?? []) }}">
-            {{ Form::label('department_id', __('Department'), ['class' => 'form-label']) }}
-            <select class="form-control select" name="department_id[]" id="department_id" multiple>
-                <option value="0" {{ in_array(0, $selectedDepartments ?? []) ? 'selected' : '' }}>{{ __('All Branch') }}</option>
-                @foreach($departments as $department)
-                    <option value="{{ $department->id }}" {{ in_array($department->id, $selectedDepartments ?? []) ? 'selected' : '' }}>
-                        {{ $department->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-        <div class="col-md-12">
-            <div class="form-group" id="employee_div">
-                {{Form::label('employee_id',__('Employee'),['class'=>'form-label'])}}
-                <select class="form-control select" name="employee_id[]" id="employee_id" placeholder="Select Employee" >
-                @foreach($allEmployees  as $employee)
-                    <option value="{{ $employee->id }}" {{ in_array($employee->id, $selectedElmployees ?? []) ? 'selected' : '' }}>
-                        {{ $employee->name }}
-                    </option>
-                @endforeach
-                </select>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <div class="form-group">
-                {{Form::label('title',__('Meeting Title'),['class'=>'form-label'])}}
-                {{Form::text('title',null,array('class'=>'form-control','placeholder'=>__('Enter Meeting Title')))}}
             </div>
         </div>
         <div class="col-md-12">

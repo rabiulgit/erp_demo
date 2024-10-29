@@ -15,6 +15,9 @@ class MeetingController extends Controller
 {
     public function index()
     {
+
+
+
         if (\Auth::user()->can('manage meeting')) {
             $employees = Employee::get();
             if (Auth::user()->type == 'Employee') {
@@ -78,6 +81,7 @@ class MeetingController extends Controller
         }
 
         if (\Auth::user()->can('create meeting')) {
+
             $meeting                = new Meeting();
             $meeting->branch_id     = $request->branch_id;
             $meeting->department_id = json_encode($request->department_id);
@@ -221,6 +225,7 @@ class MeetingController extends Controller
 
     public function destroy(Meeting $meeting)
     {
+       
         if (\Auth::user()->can('delete meeting')) {
             if ($meeting->created_by == \Auth::user()->creatorId()) {
                 $meeting->delete();
