@@ -135,7 +135,7 @@
                             <tbody>
 
                                 @foreach ($attendanceEmployee as $key => $attendance)
-
+                    
                                 <tr>
                                     <td>{{$key + 1}}</td>
                                     <td>{{ $attendance->employee_id}}</td>
@@ -150,28 +150,11 @@
                                     <td>{{ $attendance->overtime ?? "" }}</td>
                                     <td>
                                         @php
-                                        // Formatting the dates
-                                        $start_date = \Auth::user()->dateFormat($attendance->l_start_date);
-                                        $end_date = \Auth::user()->dateFormat($attendance->l_end_date);
-                                        $check_date = \Auth::user()->dateFormat($attendance->date);
-                                        $meeting_date = \Auth::user()->dateFormat($attendance->m_date);
-
-                                        // Decode the JSON string into a PHP array
-                                        $json_decode = $attendance->emp_ids ? json_decode($attendance->emp_ids, true) : [1,1];
-
-                                        // Check if the current date is within the leave dates
-                                        if ($start_date <= $check_date && $end_date>= $check_date) {
-                                            $attendance->status = "Leave";
-                                            }
-                                            // Check if the employee ID is in the meeting list and the dates match
-                                            else if (in_array($attendance->emp_id, $json_decode ) && $check_date == $meeting_date) {
-                                            $attendance->status = "Present-Meeting"; // Set status to Present-Meeting
-                                            }
                                             @endphp
 
                                             <span class="badge 
-                                                 {{$attendance->status == 'Present' ? 'bg-success' : ($attendance->status == 'Leave' ? 'bg-warning' : ($attendance->status == 'Present-Meeting' ? 'bg-info' : 'bg-danger'))}}">
-                                                {{$attendance->status == 'Present' ? 'Present' : ($attendance->status == 'Leave' ? 'Leave' : ($attendance->status == 'Present-Meeting' ? 'Present-M' : 'Absent'))}}
+                                                 {{$attendance->status == 'Present' ? 'bg-success' : ($attendance->status == 'leave' ? 'bg-warning' : ($attendance->status == 'meeting' ? 'bg-info' : 'bg-danger'))}}">
+                                                {{$attendance->status == 'Present' ? 'Present' : ($attendance->status == 'leave' ? 'Leave' : ($attendance->status == 'meeting' ? 'Present-M' : 'Absent'))}}
                                             </span>
                                     </td>
 

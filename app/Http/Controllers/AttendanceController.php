@@ -96,26 +96,62 @@ class AttendanceController extends Controller
 
                 $employee = $employee->get()->pluck('employee_id');
 
+                // $attendanceEmployee = DB::table('attendance_logs')
+                //     ->join('employees', 'attendance_logs.employee_id', '=', 'employees.employee_id')
+                //     ->leftJoin('leaves', function ($join) {
+                //         $join->on('employees.id', '=', 'leaves.employee_id')
+                //             ->where('leaves.status', '=', 'approved');
+                //     })
+                //     ->leftJoin('single_meetings', function ($join) {
+                //         $join->on('employees.id','=','single_meetings.employee_id');
+                //     })
+                //     ->select(
+                //         'attendance_logs.*',
+                //         'employees.name',
+                //         'employees.id as emp_id',
+                //         'leaves.start_date as l_start_date',
+                //         'leaves.end_date as l_end_date',
+                //         // 'single_meetings.employee_id as emp_ids',
+                //         'single_meetings.date as m_date'
+                //     )
+                //     ->groupBy('employees.id', 'attendance_logs.date');
+
                 $attendanceEmployee = DB::table('attendance_logs')
                     ->join('employees', 'attendance_logs.employee_id', '=', 'employees.employee_id')
                     ->leftJoin('leaves', function ($join) {
                         $join->on('employees.id', '=', 'leaves.employee_id')
                             ->where('leaves.status', '=', 'approved');
                     })
-                    ->leftJoin('meetings', function ($join) {
-                        $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
+                    ->leftJoin('single_meetings', function ($join) {
+                        $join->on('employees.id', '=', 'single_meetings.employee_id');
                     })
                     ->select(
                         'attendance_logs.*',
+                        'attendance_logs.id',
+                        'attendance_logs.employee_id',
+                        'attendance_logs.date',
                         'employees.name',
                         'employees.id as emp_id',
                         'leaves.start_date as l_start_date',
                         'leaves.end_date as l_end_date',
-                        'meetings.employee_id as emp_ids',
-                        'meetings.date as m_date'
+                        'single_meetings.date as m_date',
+                        DB::raw("CASE 
+                    WHEN single_meetings.date IS NOT NULL AND single_meetings.date = attendance_logs.date THEN 'meeting' 
+                    WHEN leaves.start_date IS NOT NULL AND leaves.start_date <= attendance_logs.date AND leaves.end_date >= attendance_logs.date THEN 'leave'
+                    ELSE attendance_logs.status 
+                 END AS status")
                     )
-                    ->groupBy('employees.id', 'attendance_logs.date') // Group by employee ID and date
-                ;
+                    ->groupBy('employees.id', 'attendance_logs.date');
+
+//                    foreach($attendanceEmployee as $item) {
+//                     if($item->date =="2024-10-22" && $item->employee_id ==1000017){
+//                         dd($item);
+//                     }
+//                     if($item->status == 'meeting'){
+//                         dump($item);
+//                     }
+//                    }
+// dd("done");
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
                     $month = date('m', strtotime($request->month));
@@ -150,8 +186,10 @@ class AttendanceController extends Controller
 
                 $attendanceEmployee = $attendanceEmployee
                     ->orderBy('attendance_logs.date', 'desc')
-                    ->orderBy('employee_id', 'asc')
+                    ->orderBy('id', 'asc')
                     ->get();
+
+                // dd($attendanceEmployee);
             }
 
             return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'employees'));
