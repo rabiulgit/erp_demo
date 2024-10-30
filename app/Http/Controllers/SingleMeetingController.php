@@ -95,20 +95,21 @@ class SingleMeetingController extends Controller
         }
     }
 
-    public function destroy(Meeting $meeting)
+    public function destroy(SingleMeeting $employee_meeting)
     {
+
         // Check if the user has permission to delete meetings
         if (!\Auth::user()->can('delete meeting')) {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
 
         // Check if the authenticated user is the creator of the meeting
-        if ($meeting->created_by !== \Auth::user()->creatorId()) {
+        if ($employee_meeting->created_by !== \Auth::user()->creatorId()) {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
 
-        // Delete the meeting and redirect with a success message
-        $meeting->delete();
+        // Delete the employee_meeting and redirect with a success message
+        $employee_meeting->delete();
 
         return redirect()->route('employee-meetings.index')->with('success', __('Meeting successfully deleted.'));
     }
