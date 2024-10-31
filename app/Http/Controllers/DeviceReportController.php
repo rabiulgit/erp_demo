@@ -151,14 +151,7 @@ class DeviceReportController extends Controller
                 $data['branch'] = __('All');
                 $data['department'] = __('All');
 
-                $employees = DB::table('employees')->leftJoin('leaves', function ($join) {
-                    $join->on('employees.id', '=', 'leaves.employee_id')
-                        ->where('leaves.status', '=', 'approved');
-                })->leftJoin('meetings', function ($join) {
-                    $join->on(DB::raw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(CAST(employees.id AS CHAR)))'), '=', DB::raw('1'));
-                })
-                    ->select('employees.name', 'employees.id', 'employees.created_by', 'employees.employee_id', 'leaves.start_date as l_start_date', 'leaves.end_date as l_end_date', 'meetings.employee_id as emp_ids', 'meetings.date as m_date')
-                    ->groupBy('employees.id');
+                $employees = Employee::with(['leaves', 'meetings']);
 
 
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
@@ -210,9 +203,10 @@ class DeviceReportController extends Controller
                             $employeeAttendance = AttendanceLog::where('employee_id', $employee->employee_id)->where('date', $dateFormat)->first();
                             $dayName = date('l', strtotime($employeeAttendance?->date));
                             $holidays = Holiday::get();
+                            $employee_meeting = false;
                             $government_holiday = false;
                             $employee_leave = false;
-                            $employee_meeting = false;
+
 
                             foreach ($holidays ?? [] as $holiday) {
                                 $start = Carbon::parse($holiday->date);
@@ -226,58 +220,67 @@ class DeviceReportController extends Controller
                                 }
                             }
 
-                            if (!empty($employeeAttendance) && $employee->l_start_date != null) {
+                            $check = Carbon::parse($employeeAttendance?->date);
 
-                                $start = Carbon::parse($employee->l_start_date);
-                                $end = Carbon::parse($employee->l_end_date);
-                                $check = Carbon::parse($employeeAttendance?->date);
+                            if (!empty($employeeAttendance) && !$employee->leaves->isEmpty()) {
+                                foreach ($employee->leaves as $leave) {
+                                    $start = Carbon::parse($leave->start_date);
+                                    $end = Carbon::parse($leave->end_date);
 
-                                if ($check >= $start && $check <= $end) {
-                                    $employee_leave = true;
+                                    if ($check->between($start, $end)) {
+                                        $employee_leave = true;
+                                        break; // Exit loop if a leave period is found
+                                    }
+                                }
+                            }
+                            if ($employeeAttendance &&  !$employee->meetings->isEmpty()) {
+                                $meetingDates = $employee->meetings->pluck('date')->toArray();
+                                if (in_array($employeeAttendance?->date, $meetingDates)) {
+
+                                    $employee_meeting = true;
                                 }
                             }
 
-                            if ($employee->emp_ids != null && $employeeAttendance?->date == $employee->m_date) {
-                                $employee_meeting = true;
-                            }
+                            if (!empty($employeeAttendance) && $employeeAttendance?->date) {
 
-                            if (!empty($employeeAttendance) && $employee->emp_ids != null && $employee_meeting) {
-                                $attendanceStatus[$date] = 'M';
-                            } else if (!empty($employeeAttendance) && $employeeAttendance->status == 'Present') {
+                                if ($employee_meeting) {
+                                    $attendanceStatus[$date] = 'M';
+                                } else if ($employeeAttendance->status == 'Present') {
 
-                                $attendanceStatus[$date] = 'P';
-                                $totalPresent += 1;
-                                if ($employeeAttendance->overtime > 0) {
-                                    $overtime = Carbon::parse($employeeAttendance->overtime);
-                                    // Add hours and minutes from late time
-                                    $ovetimeHours += $overtime->hour; // Get hours
-                                    $overtimeMins += $overtime->minute; // Get minutes
+                                    $attendanceStatus[$date] = 'P';
+                                    $totalPresent += 1;
+                                    if ($employeeAttendance->overtime > 0) {
+                                        $overtime = Carbon::parse($employeeAttendance->overtime);
+                                        // Add hours and minutes from late time
+                                        $ovetimeHours += $overtime->hour; // Get hours
+                                        $overtimeMins += $overtime->minute; // Get minutes
+                                    }
+
+                                    if ($employeeAttendance->early_leaving > 0) {
+                                        $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
+                                        // Add hours and minutes from late time
+                                        $earlyleaveHours += $early_leaving->hour; // Get hours
+                                        $earlyleaveMins += $early_leaving->minute; // Get minutes
+                                    }
+
+                                    if ($employeeAttendance->late > 0) {
+                                        $lateTime = Carbon::parse($employeeAttendance->late);
+                                        $lateHours += $lateTime->hour; // Get hours
+                                        $lateMins += $lateTime->minute; // Get minutes
+                                    }
+                                } elseif ($employee_leave) {
+                                    $attendanceStatus[$date] = 'A';
+                                    $totalLeave += 1;
+                                } elseif ($government_holiday) {
+                                    $attendanceStatus[$date] = 'GH';
+                                } elseif ($dayName == "Friday" || $dayName == "Saturday") {
+                                    $attendanceStatus[$date] = 'off';
+                                } else {
+                                    $attendanceStatus[$date] = '';
                                 }
-
-                                if ($employeeAttendance->early_leaving > 0) {
-                                    $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
-                                    // Add hours and minutes from late time
-                                    $earlyleaveHours += $early_leaving->hour; // Get hours
-                                    $earlyleaveMins += $early_leaving->minute; // Get minutes
-                                }
-
-                                if ($employeeAttendance->late > 0) {
-                                    $lateTime = Carbon::parse($employeeAttendance->late);
-                                    $lateHours += $lateTime->hour; // Get hours
-                                    $lateMins += $lateTime->minute; // Get minutes
-                                }
-                            } elseif (!empty($employeeAttendance) && $employee_leave) {
-                                $attendanceStatus[$date] = 'A';
-                                $totalLeave += 1;
-                            } elseif ($dayName == "Friday" || $dayName == "Saturday") {
-                                $attendanceStatus[$date] = 'off';
-                            } elseif ($government_holiday) {
-                                $attendanceStatus[$date] = 'GH';
                             } else {
                                 $attendanceStatus[$date] = '';
                             }
-                        } else {
-                            $attendanceStatus[$date] = '';
                         }
                     }
                     $attendances['status'] = $attendanceStatus;
@@ -293,6 +296,7 @@ class DeviceReportController extends Controller
                 $data['totalPresent'] = $totalPresent;
                 $data['totalLeave'] = $totalLeave;
                 $data['curMonth'] = $curMonth;
+
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
             } else {

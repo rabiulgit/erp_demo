@@ -418,9 +418,15 @@ class Employee extends Model
         return $this->hasMany(Leave::class)->where('status', 'Approved');
     }
 
+    // public function meetings()
+    // {
+    //     return $this->hasMany(Meeting::class)
+    //     ->whereRaw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(?))', [(string) $this->id]);
+    // }
+
     public function meetings()
     {
-        return $this->hasMany(Meeting::class)
-        ->whereRaw('JSON_CONTAINS(meetings.employee_id, JSON_QUOTE(?))', [(string) $this->id]);
+        return $this->hasMany(SingleMeeting::class,'employee_id'); 
     }
+    
 }
