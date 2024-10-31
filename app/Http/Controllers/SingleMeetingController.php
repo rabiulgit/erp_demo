@@ -13,9 +13,9 @@ class SingleMeetingController extends Controller
 {
     public function index()
     {
-        if (\Auth::user()->can('manage meeting')) {
+        // if (Auth::user()->can('manage meeting')) {
 
-            if (Auth::user()->type == 'Employee') {
+            if (@Auth::user()?->type == 'Employee') {
                 $meetings = SingleMeeting::with(['branch','employee'])->where('created_by', '=', Auth::id())->get();
             } else {
                 $meetings = SingleMeeting::with(['branch','employee'])->orderBy('id', 'desc')->get();
@@ -24,9 +24,10 @@ class SingleMeetingController extends Controller
             // dd($meetings);
 
             return view('single-meeting.index', compact('meetings'));
-        } else {
-            return redirect()->back()->with('error', __('Permission denied.'));
-        }
+        
+        // else {
+        //     return redirect()->back()->with('error', __('Permission denied.'));
+        // }
     }
 
     public function create()

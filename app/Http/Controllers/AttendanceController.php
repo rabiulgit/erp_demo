@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
 use App\Models\Branch;
+use App\Models\Holiday;
 use App\Models\Meeting;
 use App\Services\AttendanceService;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         if (\Auth::user()->can('manage attendance')) {
+
+            $holidays = Holiday::pluck('date')->toArray();
 
             $employees = Employee::get()->pluck('name', 'employee_id');
 
@@ -94,64 +97,12 @@ class AttendanceController extends Controller
                     $employee->where('department_id', $request->department);
                 }
 
-                $employee = $employee->get()->pluck('employee_id');
+                $employee = $employee->pluck('employee_id');
 
-                // $attendanceEmployee = DB::table('attendance_logs')
-                //     ->join('employees', 'attendance_logs.employee_id', '=', 'employees.employee_id')
-                //     ->leftJoin('leaves', function ($join) {
-                //         $join->on('employees.id', '=', 'leaves.employee_id')
-                //             ->where('leaves.status', '=', 'approved');
-                //     })
-                //     ->leftJoin('single_meetings', function ($join) {
-                //         $join->on('employees.id','=','single_meetings.employee_id');
-                //     })
-                //     ->select(
-                //         'attendance_logs.*',
-                //         'employees.name',
-                //         'employees.id as emp_id',
-                //         'leaves.start_date as l_start_date',
-                //         'leaves.end_date as l_end_date',
-                //         // 'single_meetings.employee_id as emp_ids',
-                //         'single_meetings.date as m_date'
-                //     )
-                //     ->groupBy('employees.id', 'attendance_logs.date');
+                $attendanceEmployee = AttendanceLog::with(['employee', 'employee.leaves', 'employee.meetings'])->whereIn('employee_id', $employee);
 
-                $attendanceEmployee = DB::table('attendance_logs')
-                    ->join('employees', 'attendance_logs.employee_id', '=', 'employees.employee_id')
-                    ->leftJoin('leaves', function ($join) {
-                        $join->on('employees.id', '=', 'leaves.employee_id')
-                            ->where('leaves.status', '=', 'approved');
-                    })
-                    ->leftJoin('single_meetings', function ($join) {
-                        $join->on('employees.id', '=', 'single_meetings.employee_id');
-                    })
-                    ->select(
-                        'attendance_logs.*',
-                        'attendance_logs.id',
-                        'attendance_logs.employee_id',
-                        'attendance_logs.date',
-                        'employees.name',
-                        'employees.id as emp_id',
-                        'leaves.start_date as l_start_date',
-                        'leaves.end_date as l_end_date',
-                        'single_meetings.date as m_date',
-                        DB::raw("CASE 
-                    WHEN single_meetings.date IS NOT NULL AND single_meetings.date = attendance_logs.date THEN 'meeting' 
-                    WHEN leaves.start_date IS NOT NULL AND leaves.start_date <= attendance_logs.date AND leaves.end_date >= attendance_logs.date THEN 'leave'
-                    ELSE attendance_logs.status 
-                 END AS status")
-                    )
-                    ->groupBy('employees.id', 'attendance_logs.date');
+                $holidays = Holiday::pluck('date')->toArray();
 
-//                    foreach($attendanceEmployee as $item) {
-//                     if($item->date =="2024-10-22" && $item->employee_id ==1000017){
-//                         dd($item);
-//                     }
-//                     if($item->status == 'meeting'){
-//                         dump($item);
-//                     }
-//                    }
-// dd("done");
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
                     $month = date('m', strtotime($request->month));
@@ -161,14 +112,12 @@ class AttendanceController extends Controller
                     $end_date   = date($year . '-' . $month . '-t');
 
                     $attendanceEmployee->whereBetween(
-                        'attendance_logs.date',
+                        'date',
                         [
                             $start_date,
                             $end_date,
                         ]
                     );
-                } elseif ($request->type == 'daily' && !empty($request->date)) {
-                    $attendanceEmployee->where('attendance_logs.date', $request->date);
                 } else {
                     $month      = date('m');
                     $year       = date('Y');
@@ -184,15 +133,17 @@ class AttendanceController extends Controller
                     );
                 }
 
+                if ($request->type == 'daily' && !empty($request->date)) {
+                    $attendanceEmployee->where('date', $request->date);
+                }
+
                 $attendanceEmployee = $attendanceEmployee
                     ->orderBy('attendance_logs.date', 'desc')
                     ->orderBy('id', 'asc')
                     ->get();
-
-                // dd($attendanceEmployee);
             }
 
-            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'employees'));
+            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'employees', 'holidays'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }

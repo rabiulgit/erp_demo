@@ -54,8 +54,8 @@
                                     <td>{{ $meeting?->employee?->name }}</td>
                                     <td>{{ $meeting?->branch?->name }}</td>
                                     <td>{{ $meeting->to_address ?? "" }}</td>
-                                    <td>{{  \Auth::user()->dateFormat($meeting->date) }}</td>
-                                    <td>{{  \Auth::user()->timeFormat($meeting->time) }}</td>
+                                    <td>{{  \Auth::user()?->dateFormat($meeting->date) }}</td>
+                                    <td>{{  \Auth::user()?->timeFormat($meeting->time) }}</td>
                                     @if(Gate::check('edit meeting') || Gate::check('delete meeting'))
                                         <td>
                                             @can('edit meeting')
