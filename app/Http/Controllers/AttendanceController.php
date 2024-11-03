@@ -34,7 +34,7 @@ class AttendanceController extends Controller
     {
         if (\Auth::user()->can('manage attendance')) {
 
-            $holidays = Holiday::pluck('date')->toArray();
+            $holidays = Holiday::get();
 
             $employees = Employee::get()->pluck('name', 'employee_id');
 
@@ -101,7 +101,8 @@ class AttendanceController extends Controller
 
                 $attendanceEmployee = AttendanceLog::with(['employee', 'employee.leaves', 'employee.meetings'])->whereIn('employee_id', $employee);
 
-                $holidays = Holiday::pluck('date')->toArray();
+                $holidays = Holiday::get();
+
 
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
