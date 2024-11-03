@@ -37,6 +37,7 @@ use App\Models\Project;
 use App\Models\ProjectTask;
 use App\Models\Purchase;
 use App\Models\Revenue;
+use App\Models\SingleMeeting;
 use App\Models\Stage;
 use App\Models\Tax;
 use App\Models\Ticket;
@@ -70,7 +71,6 @@ class DashboardController extends Controller
      */
     public function account_dashboard_index()
     {
-
         if(Auth::check())
         {
            if(Auth::user()->type == 'client')
@@ -151,7 +151,7 @@ class DashboardController extends Controller
                     return $this->hrm_dashboard_index();
                 }
 
-                
+
             }
         }
         else
@@ -273,6 +273,7 @@ class DashboardController extends Controller
             // {
             $user = Auth::user();
             if ($user->type != 'client' && $user->type != 'company') {
+
                 $emp = Employee::where('user_id', '=', $user->id)->first();
 
                 $announcements = Announcement::orderBy('announcements.id', 'desc')->take(5)->leftjoin('announcement_employees', 'announcements.id', '=', 'announcement_employees.announcement_id')->where('announcement_employees.employee_id', '=', $emp->id)->orWhere(
@@ -282,11 +283,16 @@ class DashboardController extends Controller
                 )->get();
 
                 $employees = Employee::get();
-                $meetings = Meeting::orderBy('meetings.id', 'desc')->take(5)->leftjoin('meeting_employees', 'meetings.id', '=', 'meeting_employees.meeting_id')->where('meeting_employees.employee_id', '=', $emp->id)->orWhere(
-                    function ($q) {
-                        $q->where('meetings.department_id', '["0"]')->where('meetings.employee_id', '["0"]');
-                    }
-                )->get();
+                // $meetings = Meeting::orderBy('meetings.id', 'desc')->take(5)->leftjoin('meeting_employees', 'meetings.id', '=', 'meeting_employees.meeting_id')->where('meeting_employees.employee_id', '=', $emp->id)->orWhere(
+                //     function ($q) {
+                //         $q->where('meetings.department_id', '["0"]')->where('meetings.employee_id', '["0"]');
+                //     }
+                // )->get();
+
+                $meetings = SingleMeeting::where('employee_id', $emp->id)->get();
+
+
+
                 $events = Event::leftjoin('event_employees', 'events.id', '=', 'event_employees.event_id')->where('event_employees.employee_id', '=', $emp->id)->orWhere(
                     function ($q) {
                         $q->where('events.department_id', '["0"]')->where('events.employee_id', '["0"]');
