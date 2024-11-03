@@ -35,8 +35,11 @@ class AttendanceController extends Controller
         if (\Auth::user()->can('manage attendance')) {
 
             $holidays = Holiday::get();
+            $user = \Auth::user();
 
-            $employees = Employee::get()->pluck('name', 'employee_id');
+            // $employees = Employee::get()->pluck('name', 'employee_id');
+            $employee = Employee::with(['leaves','meetings'])->where('user_id', $user->id)->where('created_by', \Auth::user()->creatorId())->first();
+
 
             $branch = Branch::where('created_by', \Auth::user()->creatorId())->get()->pluck('name', 'id');
             $branch->prepend('Select Branch', '');
@@ -45,9 +48,12 @@ class AttendanceController extends Controller
             $department->prepend('Select Department', '');
 
             if (\Auth::user()->type != 'client' && \Auth::user()->type != 'company') {
+
+
                 $emp = !empty(\Auth::user()->employee) ? \Auth::user()->employee->id : 0;
 
-                $attendanceEmployee = AttendanceLog::where('employee_id', $emp);
+                $attendanceEmployee = AttendanceLog::where('employee_id', $employee->employee_id);
+
                 if ($request->type == 'monthly' && !empty($request->month)) {
                     $month = date('m', strtotime($request->month));
                     $year  = date('Y', strtotime($request->month));
@@ -144,7 +150,7 @@ class AttendanceController extends Controller
                     ->get();
             }
 
-            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'employees', 'holidays'));
+            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'holidays'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }

@@ -520,14 +520,15 @@
                                     </li>
                                 @endif
 
-                                @if (Gate::check('manage leave') || Gate::check('manage attendance'))
+                                @if ( Gate::check('manage device attendance'))
                                     <li
                                         class="dash-item dash-hasmenu  {{ Request::segment(1) == 'leave' || Request::segment(1) == 'attendanceemployee' ? 'active dash-trigger' : '' }}">
+
                                         <a class="dash-link" href="#">{{ __('Device Attendance') }}<span
                                                 class="dash-arrow"><i data-feather="chevron-right"></i></span></a>
                                         <ul class="dash-submenu">
 
-                                            @can('manage attendance')
+                                            @can('manage device attendance')
                                                 <li
                                                     class="dash-item {{ Request::route()->getName() == 'device-attendanceemployee' ? 'active' : '' }}">
                                                     <a class="dash-link"
@@ -764,12 +765,12 @@
                                     </li>
                                 @endcan
 
-                                @can('manage meeting')
+                                {{-- @can('manage meeting')
                                     <li class="dash-item {{ request()->is('meeting*') ? 'active' : '' }}">
                                         <a class="dash-link"
                                             href="{{ route('meeting.index') }}">{{ __('Meeting') }}</a>
                                     </li>
-                                @endcan
+                                @endcan --}}
                                 @can('manage assets')
                                     <li class="dash-item {{ request()->is('account-assets*') ? 'active' : '' }}">
                                         <a class="dash-link"

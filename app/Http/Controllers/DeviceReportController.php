@@ -29,7 +29,7 @@ class DeviceReportController extends Controller
                 $data['department'] = __('All');
 
                 // Get the employee details of the logged-in user
-                $employee = Employee::where('user_id', $user->id)->where('created_by', \Auth::user()->creatorId())->first();
+                $employee = Employee::with(['leaves','meetings'])->where('user_id', $user->id)->where('created_by', \Auth::user()->creatorId())->first();
 
                 if (!$employee) {
                     return redirect()->back()->with('error', __('Employee data not found.'));
@@ -61,7 +61,6 @@ class DeviceReportController extends Controller
 
                 $attendances['name'] = $employee->name;
                 $attendances['employee_id'] = $employee->employee_id;
-
                 foreach ($dates as $date) {
                     $dateFormat = $year . '-' . $month . '-' . $date;
 
@@ -69,7 +68,10 @@ class DeviceReportController extends Controller
                         $employeeAttendance = AttendanceLog::where('employee_id', $employee->employee_id)->where('date', $dateFormat)->first();
                         $dayName = date('l', strtotime($employeeAttendance?->date));
                         $holidays = Holiday::get();
+                        $employee_meeting = false;
                         $government_holiday = false;
+                        $employee_leave = false;
+
 
                         foreach ($holidays ?? [] as $holiday) {
                             $start = Carbon::parse($holiday->date);
@@ -78,44 +80,72 @@ class DeviceReportController extends Controller
 
                             if ($check >= $start && $check <= $end) {
                                 $attendanceStatus[$date] = 'GH';
+
                                 $government_holiday = true;
                             }
                         }
 
-                        if (!empty($employeeAttendance) && $employeeAttendance->status == 'Present') {
-                            $attendanceStatus[$date] = 'P';
-                            $totalPresent += 1;
+                        $check = Carbon::parse($employeeAttendance?->date);
 
-                            // Calculate overtime, early leave, and late hours
-                            if ($employeeAttendance->overtime > 0) {
-                                $overtime = Carbon::parse($employeeAttendance->overtime);
-                                $ovetimeHours += $overtime->hour;
-                                $overtimeMins += $overtime->minute;
-                            }
+                        if (!empty($employeeAttendance) && !$employee->leaves->isEmpty()) {
+                            foreach ($employee->leaves as $leave) {
+                                $start = Carbon::parse($leave->start_date);
+                                $end = Carbon::parse($leave->end_date);
 
-                            if ($employeeAttendance->early_leaving > 0) {
-                                $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
-                                $earlyleaveHours += $early_leaving->hour;
-                                $earlyleaveMins += $early_leaving->minute;
+                                if ($check->between($start, $end)) {
+                                    $employee_leave = true;
+                                    break; // Exit loop if a leave period is found
+                                }
                             }
+                        }
+                        if ($employeeAttendance &&  !$employee->meetings->isEmpty()) {
+                            $meetingDates = $employee->meetings->pluck('date')->toArray();
+                            if (in_array($employeeAttendance?->date, $meetingDates)) {
 
-                            if ($employeeAttendance->late > 0) {
-                                $lateTime = Carbon::parse($employeeAttendance->late);
-                                $lateHours += $lateTime->hour;
-                                $lateMins += $lateTime->minute;
+                                $employee_meeting = true;
                             }
-                        } elseif (!empty($employeeAttendance) && $employeeAttendance->status == 'Leave') {
-                            $attendanceStatus[$date] = 'A';
-                            $totalLeave += 1;
-                        } elseif ($dayName == "Friday" || $dayName == "Saturday") {
-                            $attendanceStatus[$date] = 'off';
-                        } elseif ($government_holiday) {
-                            $attendanceStatus[$date] = 'GH';
+                        }
+
+                        if (!empty($employeeAttendance) && $employeeAttendance?->date) {
+
+                            if ($employee_meeting) {
+                                $attendanceStatus[$date] = 'M';
+                            } else if ($employeeAttendance->status == 'Present') {
+
+                                $attendanceStatus[$date] = 'P';
+                                $totalPresent += 1;
+                                if ($employeeAttendance->overtime > 0) {
+                                    $overtime = Carbon::parse($employeeAttendance->overtime);
+                                    // Add hours and minutes from late time
+                                    $ovetimeHours += $overtime->hour; // Get hours
+                                    $overtimeMins += $overtime->minute; // Get minutes
+                                }
+
+                                if ($employeeAttendance->early_leaving > 0) {
+                                    $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
+                                    // Add hours and minutes from late time
+                                    $earlyleaveHours += $early_leaving->hour; // Get hours
+                                    $earlyleaveMins += $early_leaving->minute; // Get minutes
+                                }
+
+                                if ($employeeAttendance->late > 0) {
+                                    $lateTime = Carbon::parse($employeeAttendance->late);
+                                    $lateHours += $lateTime->hour; // Get hours
+                                    $lateMins += $lateTime->minute; // Get minutes
+                                }
+                            } elseif ($employee_leave) {
+                                $attendanceStatus[$date] = 'A';
+                                $totalLeave += 1;
+                            } elseif ($government_holiday) {
+                                $attendanceStatus[$date] = 'GH';
+                            } elseif ($dayName == "Friday" || $dayName == "Saturday") {
+                                $attendanceStatus[$date] = 'off';
+                            } else {
+                                $attendanceStatus[$date] = '';
+                            }
                         } else {
                             $attendanceStatus[$date] = '';
                         }
-                    } else {
-                        $attendanceStatus[$date] = '';
                     }
                 }
 
@@ -135,8 +165,6 @@ class DeviceReportController extends Controller
                 $data['totalPresent'] = $totalPresent;
                 $data['totalLeave'] = $totalLeave;
                 $data['curMonth'] = $curMonth;
-
-                // dd($employeesAttendance);
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
             } else {
