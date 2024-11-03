@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 @section('page-title')
-{{__('Manage Attendance List')}}
+    {{ __('Manage Attendance List') }}
 @endsection
 @push('script-page')
     <script>
-        $('input[name="type"]:radio').on('change', function (e) {
+        $('input[name="type"]:radio').on('change', function(e) {
             var type = $(this).val();
 
             if (type == 'monthly') {
@@ -24,68 +24,68 @@
     </script>
 @endpush
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{route('dashboard')}}">{{__('Dashboard')}}</a></li>
-<li class="breadcrumb-item">{{__('Attendance')}}</li>
+    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
+    <li class="breadcrumb-item">{{ __('Attendance') }}</li>
 @endsection
 @section('content')
+    <div class="row">
 
+        <div class="col-sm-12">
+            @if (session('status'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {!! session('status') !!}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <div class=" mt-2 " id="multiCollapseExample1">
+                <div class="card">
+                    <div class="card-body">
+                        {{ Form::open(['route' => ['device-attendanceemployee.lists'], 'method' => 'get', 'id' => 'attendanceemployee_filter']) }}
+                        <div class="row align-items-center justify-content-end">
+                            <div class="col-xl-10">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <label class="form-label">{{ __('Type') }}</label> <br>
 
-<div class="row">
+                                        <div class="form-check form-check-inline form-group">
+                                            <input type="radio" id="monthly" value="monthly" name="type"
+                                                class="form-check-input"
+                                                {{ isset($_GET['type']) && $_GET['type'] == 'monthly' ? 'checked' : 'checked' }}>
+                                            <label class="form-check-label" for="monthly">{{ __('Monthly') }}</label>
+                                        </div>
+                                        <div class="form-check form-check-inline form-group">
+                                            <input type="radio" id="daily" value="daily" name="type"
+                                                class="form-check-input"
+                                                {{ isset($_GET['type']) && $_GET['type'] == 'daily' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="daily">{{ __('Daily') }}</label>
+                                        </div>
 
-    <div class="col-sm-12">
-        @if (session('status'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {!! session('status') !!}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        <div class=" mt-2 " id="multiCollapseExample1">
-            <div class="card">
-                <div class="card-body">
-                    {{ Form::open(array('route' => array('device-attendanceemployee.lists'), 'method' => 'get', 'id' => 'attendanceemployee_filter')) }}
-                    <div class="row align-items-center justify-content-end">
-                        <div class="col-xl-10">
-                            <div class="row">
-                                <div class="col-3">
-                                    <label class="form-label">{{__('Type')}}</label> <br>
-
-                                    <div class="form-check form-check-inline form-group">
-                                        <input type="radio" id="monthly" value="monthly" name="type"
-                                            class="form-check-input" {{isset($_GET['type']) && $_GET['type'] == 'monthly' ? 'checked' : 'checked'}}>
-                                        <label class="form-check-label" for="monthly">{{__('Monthly')}}</label>
                                     </div>
-                                    <div class="form-check form-check-inline form-group">
-                                        <input type="radio" id="daily" value="daily" name="type"
-                                            class="form-check-input" {{isset($_GET['type']) && $_GET['type'] == 'daily' ? 'checked' : ''}}>
-                                        <label class="form-check-label" for="daily">{{__('Daily')}}</label>
-                                    </div>
-
-                                </div>
-                                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 month">
-                                    <div class="btn-box">
-                                        {{Form::label('month', __('Month'), ['class' => 'form-label'])}}
-                                        {{Form::month('month', isset($_GET['month']) ? $_GET['month'] : date('Y-m'), array('class' => 'month-btn form-control month-btn'))}}
-                                    </div>
-                                </div>
-                                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 date">
-                                    <div class="btn-box">
-                                        {{ Form::label('date', __('Date'), ['class' => 'form-label'])}}
-                                        {{ Form::date('date', isset($_GET['date']) ? $_GET['date'] : '', array('class' => 'form-control month-btn')) }}
-                                    </div>
-                                </div>
-                                @if(\Auth::user()->type != 'Employee')
-                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 month">
                                         <div class="btn-box">
-                                            {{ Form::label('employees', __('Employees'), ['class' => 'form-label'])}}
-                                            {{ Form::select('employee_id', $employees->prepend('Select Employee', ''), isset($_GET['employee_id']) ? $_GET['employee_id'] : '', ['class' => 'form-control select']) }}
+                                            {{ Form::label('month', __('Month'), ['class' => 'form-label']) }}
+                                            {{ Form::month('month', isset($_GET['month']) ? $_GET['month'] : date('Y-m'), ['class' => 'month-btn form-control month-btn']) }}
                                         </div>
                                     </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12 date">
                                         <div class="btn-box">
-                                            {{ Form::label('department', __('Department'), ['class' => 'form-label'])}}
-                                            {{ Form::select('department', $department->prepend('Select Department', ''), isset($_GET['department']) ? $_GET['department'] : '', ['class' => 'form-control select']) }}
+                                            {{ Form::label('date', __('Date'), ['class' => 'form-label']) }}
+                                            {{ Form::date('date', isset($_GET['date']) ? $_GET['date'] : '', ['class' => 'form-control month-btn']) }}
                                         </div>
-                                @endif
+                                    </div>
+                                    @if (\Auth::user()->type != 'Employee')
+                                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                            <div class="btn-box">
+                                                {{ Form::label('employees', __('Employees'), ['class' => 'form-label']) }}
+                                                {{ Form::select('employee_id', $employees->prepend('Select Employee', ''), isset($_GET['employee_id']) ? $_GET['employee_id'] : '', ['class' => 'form-control select']) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                            <div class="btn-box">
+                                                {{ Form::label('department', __('Department'), ['class' => 'form-label']) }}
+                                                {{ Form::select('department', $department->prepend('Select Department', ''), isset($_GET['department']) ? $_GET['department'] : '', ['class' => 'form-control select']) }}
+                                            </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-auto mt-4">
@@ -93,13 +93,13 @@
                                     <div class="col-auto">
                                         <a href="#" class="btn btn-sm btn-primary"
                                             onclick="document.getElementById('attendanceemployee_filter').submit(); return false;"
-                                            data-bs-toggle="tooltip" title="{{__('Apply')}}"
-                                            data-original-title="{{__('apply')}}">
+                                            data-bs-toggle="tooltip" title="{{ __('Apply') }}"
+                                            data-original-title="{{ __('apply') }}">
                                             <span class="btn-inner--icon"><i class="ti ti-search"></i></span>
                                         </a>
-                                        <a href="{{route('device-attendanceemployee.lists')}}"
+                                        <a href="{{ route('device-attendanceemployee.lists') }}"
                                             class="btn btn-sm btn-danger " data-bs-toggle="tooltip"
-                                            title="{{ __('Reset') }}" data-original-title="{{__('Reset')}}">
+                                            title="{{ __('Reset') }}" data-original-title="{{ __('Reset') }}">
                                             <span class="btn-inner--icon"><i
                                                     class="ti ti-trash-off text-white-off "></i></span>
                                         </a>
@@ -126,98 +126,100 @@
                         <table class="table datatable">
                             <thead>
                                 <tr>
-                                    <th>{{('SL')}}</th>
-                                    <th>{{('Employee Id')}}</th>
-                                    @if(\Auth::user()->type != 'Employee')
-                                        <th>{{__('Employee')}}</th>
+                                    <th>{{ 'SL' }}</th>
+                                    <th>{{ 'Employee Id' }}</th>
+                                    @if (\Auth::user()->type != 'Employee')
+                                        <th>{{ __('Employee') }}</th>
                                     @endif
-                                    <th>{{__('Date')}}</th>
-                                    <th>{{__('Clock In')}}</th>
-                                    <th>{{__('Clock Out')}}</th>
-                                    <th>{{__('Late')}}</th>
-                                    <th>{{__('Early Leaving')}}</th>
-                                    <th>{{__('Overtime')}}</th>
-                                    <th>{{__('Status')}}</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Clock In') }}</th>
+                                    <th>{{ __('Clock Out') }}</th>
+                                    <th>{{ __('Late') }}</th>
+                                    <th>{{ __('Early Leaving') }}</th>
+                                    <th>{{ __('Overtime') }}</th>
+                                    <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
 
                                 @foreach ($attendanceEmployee as $key => $attendance)
-
                                     <tr>
-                                        <td>{{$key + 1}}</td>
-                                        <td>{{ $attendance->employee_id}}</td>
-                                        @if(\Auth::user()->type != 'Employee')
-                                            <td>{{$attendance->name ?? ""}}</td>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $attendance->employee_id }}</td>
+                                        @if (\Auth::user()->type != 'Employee')
+                                            <td>{{ $attendance?->employee->name ?? '' }}</td>
                                         @endif
                                         <td>{{ \Auth::user()->dateFormat($attendance->date) }}</td>
-                                        <td>{{ ($attendance->clock_in != '00:00:00') ? \Auth::user()->timeFormat($attendance->clock_in) : '00:00' }}
+                                        <td>{{ $attendance->clock_in != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_in) : '00:00' }}
                                         </td>
-                                        <td>{{ ($attendance->clock_out != '00:00:00') ? \Auth::user()->timeFormat($attendance->clock_out) : '00:00' }}
+                                        <td>{{ $attendance->clock_out != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_out) : '00:00' }}
                                         </td>
-                                        <td>{{ $attendance->late ?? "" }}</td>
-                                        <td>{{ $attendance->early_leaving ?? "" }}</td>
-                                        <td>{{ $attendance->overtime ?? "" }}</td>
+                                        <td>{{ $attendance->late ?? '' }}</td>
+                                        <td>{{ $attendance->early_leaving ?? '' }}</td>
+                                        <td>{{ $attendance->overtime ?? '' }}</td>
+
+                                        @php
+
+                                            $dayName = date('l', strtotime($attendance?->date));
+                                            $attendanceDate = $attendance?->date;
+                                            $employee = $attendance?->employee;
+                                            $status = $attendance->status; // Default status
+
+                                            // Check for General Holidays
+                                            $checkDate = \Carbon\Carbon::parse($attendance->date);
+
+                                            $isHoliday = $holidays->contains(function ($holiday) use ($checkDate) {
+                                                return $checkDate->between($holiday->date, $holiday->end_date);
+                                            });
+
+                                            if ($isHoliday) {
+
+                                                $status = 'GH';
+                                            }
+                                            // Check for Weekends
+                                            elseif ($dayName == 'Friday' || $dayName == 'Saturday') {
+                                                $status = 'Off';
+                                            }
+                                            // Check for Meetings
+                                            elseif (!$employee?->meetings->isEmpty()) {
+                                                $meetingDates = $employee->meetings->pluck('date')->toArray();
+                                                if (in_array($attendanceDate, $meetingDates)) {
+                                                    $status = 'Meeting';
+                                                }
+                                            }
+                                            // Check for Leave
+                                            elseif (!$employee?->leaves->isEmpty()) {
+                                                $leave = $employee->leaves->firstWhere(function ($leave) use (
+                                                    $attendanceDate,
+                                                ) {
+                                                    return $leave->start_date <= $attendanceDate &&
+                                                        $leave->end_date >= $attendanceDate;
+                                                });
+                                                if ($leave) {
+                                                    $status = 'Leave';
+                                                }
+                                            }
+
+                                            // Define badge classes and labels
+                                            $badgeStyles = [
+                                                'Meeting' => ['class' => 'bg-primary', 'label' => 'Present/M'],
+                                                'Present' => ['class' => 'bg-success', 'label' => 'Present'],
+                                                'GH' => ['class' => 'bg-info', 'label' => 'G/Holiday'],
+                                                'Off' => ['class' => 'bg-info', 'label' => 'Holiday'],
+                                                'Leave' => ['class' => 'bg-danger', 'label' => 'Leave'],
+                                                'Absent' => ['class' => 'bg-danger', 'label' => 'Absent'],
+                                            ];
+
+                                            $badgeClass = $badgeStyles[$status]['class'];
+                                            $badgeLabel = $badgeStyles[$status]['label'];
+                                        @endphp
+
                                         <td>
-                                            @php
-
-                                                $dayName = date('l', strtotime($attendance?->date));
-
-                                                if (!$attendance?->employee?->meetings->isEmpty()) {
-                                                    $meetins_dates = $attendance?->employee?->meetings->pluck('date')->toArray() ?? [];
-                                                    if (in_array($attendance->date, $meetins_dates)) {
-                                                        $attendance->status = "Meeting";
-                                                    }
-                                                } elseif (!$attendance?->employee?->leaves->isEmpty()) {
-                                                dd($attendance?->employee?->leaves);
-                                                    $leave = $attendance?->employee?->leaves->where('start_date', '<=', $attendance->date)->where('end_date', '>=', $attendance->date)->first();
-                                                    if ($leave != null) {
-                                                        $attendance->status = "Leave";
-                                                    }
-                                                } elseif (!empty($holidays)) {
-                                                    if (in_array($attendance->date, $holidays)) {
-                                                        $attendance->status = "GH";
-                                                    }
-                                                } elseif ($dayName == "Friday" || $dayName == "Saturday") {
-                                                    $attendance->status = 'Off';
-                                                }
-
-                                                $badgeClass = '';
-                                                $badgeLabel = '';
-
-                                                switch ($attendance->status) {
-                                                    case 'Meeting':
-                                                        $badgeClass = 'bg-info';
-                                                        $badgeLabel = 'Present/M';
-                                                        break;
-                                                    case 'Present':
-                                                        $badgeClass = 'bg-success';
-                                                        $badgeLabel = 'Present';
-                                                        break;
-                                                    case 'GH':
-                                                        $badgeClass = 'bg-info';
-                                                        $badgeLabel = 'G/Holiday';
-                                                        break;
-                                                    case 'Off':
-                                                        $badgeClass = 'bg-info';
-                                                        $badgeLabel = 'Holiday';
-                                                        break;
-                                                    case 'Leave':
-                                                        $badgeClass = 'bg-info';
-                                                        $badgeLabel = 'Leave';
-                                                        break;
-                                                    default:
-                                                        $badgeClass = 'bg-danger';
-                                                        $badgeLabel = 'Absent';
-                                                        break;
-                                                }
-
-                                            @endphp
-
                                             <span class="badge {{ $badgeClass }}">
                                                 {{ $badgeLabel }}
                                             </span>
                                         </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -227,19 +229,17 @@
             </div>
         </div>
     </div>
+@endsection
 
-
-    @endsection
-
-    @push('script-page')
-        <script>
-            $(document).ready(function () {
-                $('.daterangepicker').daterangepicker({
-                    format: 'yyyy-mm-dd',
-                    locale: {
-                        format: 'YYYY-MM-DD'
-                    },
-                });
+@push('script-page')
+    <script>
+        $(document).ready(function() {
+            $('.daterangepicker').daterangepicker({
+                format: 'yyyy-mm-dd',
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
             });
-        </script>
-    @endpush
+        });
+    </script>
+@endpush
