@@ -147,7 +147,7 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $attendance->employee_id }}</td>
                                         @if (\Auth::user()->type != 'Employee')
-                                            <td>{{ $attendance?->employee->name ?? '' }}</td>
+                                            <td>{{ $attendance?->employee?->name ?? '' }}</td>
                                         @endif
                                         <td>{{ \Auth::user()->dateFormat($attendance->date) }}</td>
                                         <td>{{ $attendance->clock_in != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_in) : '00:00' }}
@@ -182,14 +182,14 @@
                                             }
                                             // Check for Meetings
                                             elseif (!$employee?->meetings->isEmpty()) {
-                                                $meetingDates = $employee->meetings->pluck('date')->toArray();
+                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
                                                 if (in_array($attendanceDate, $meetingDates)) {
                                                     $status = 'Meeting';
                                                 }
                                             }
                                             // Check for Leave
                                             elseif (!$employee?->leaves->isEmpty()) {
-                                                $leave = $employee->leaves->firstWhere(function ($leave) use (
+                                                $leave = $employee?->leaves->firstWhere(function ($leave) use (
                                                     $attendanceDate,
                                                 ) {
                                                     return $leave->start_date <= $attendanceDate &&

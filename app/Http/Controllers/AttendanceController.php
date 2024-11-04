@@ -87,28 +87,27 @@ class AttendanceController extends Controller
                 $attendanceEmployee = $attendanceEmployee->get();
             } else {
 
-                $employee = Employee::select('id', 'employee_id');
-
+                $employees = Employee::select('id', 'employee_id','name');
 
                 if (!empty($request->branch)) {
-                    $employee->where('branch_id', $request->branch);
+                    $employees->where('branch_id', $request->branch);
                 }
 
                 if (!empty($request->employee_id)) {
 
-                    $employee->where('employee_id', $request->employee_id);
+                    $employees->where('employee_id', $request->employee_id);
                 }
 
                 if (!empty($request->department)) {
-                    $employee->where('department_id', $request->department);
+                    $employees->where('department_id', $request->department);
                 }
 
-                $employee = $employee->pluck('employee_id');
+                $employee_ids = $employees->pluck( 'employee_id');
 
-                $attendanceEmployee = AttendanceLog::with(['employee', 'employee.leaves', 'employee.meetings'])->whereIn('employee_id', $employee);
+
+                $attendanceEmployee = AttendanceLog::with(['employee', 'employee.leaves', 'employee.meetings'])->whereIn('employee_id', $employee_ids);
 
                 $holidays = Holiday::get();
-
 
 
                 if ($request->type == 'monthly' && !empty($request->month)) {
@@ -148,9 +147,12 @@ class AttendanceController extends Controller
                     ->orderBy('attendance_logs.date', 'desc')
                     ->orderBy('id', 'asc')
                     ->get();
+
             }
 
-            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'holidays'));
+            $employees = Employee::pluck('name', 'employee_id');
+
+            return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'holidays','employees'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
