@@ -431,6 +431,11 @@
                                         </a>
                                     @endif
                                 </li>
+
+                                <li class="dash-item {{ request()->is('meeting*') ? 'active' : '' }}">
+                                    <a class="dash-link"
+                                        href="{{ route('employee-late-causes.index') }}">{{ __('Employee late cause') }}</a>
+                                </li>
                                 @if (Gate::check('manage set salary') || Gate::check('manage pay slip'))
                                     <li
                                         class="dash-item dash-hasmenu  {{ Request::segment(1) == 'setsalary' || Request::segment(1) == 'payslip' ? 'active dash-trigger' : '' }}">
