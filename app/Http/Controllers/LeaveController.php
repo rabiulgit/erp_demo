@@ -28,7 +28,7 @@ class LeaveController extends Controller
 
             $roleId = DB::table('model_has_roles')->where('model_id', $user_id)->value('role_id');
             $isApproval = Approval::where('module', $module)->where('role_id', $roleId)->get();
-    
+
             if ($isApproval->isEmpty()) {
 
                 if(\Auth::user()->type == 'company'){
@@ -48,9 +48,9 @@ class LeaveController extends Controller
                 } else {
                     $leaves=[];
                     $prevRole = Approval::where('module', $module)->where('order', '<', $order)->orderBy('order', 'desc')->value('role_id');
-    
+
                     $allLeaves = Leave::with(['employees','leaveType'])->get();
-    
+
                     $employee_id =Employee::where('user_id', $user_id)->value('id');
 
                     foreach ($allLeaves as $leave) {
@@ -65,15 +65,15 @@ class LeaveController extends Controller
                                 $leaves[]=$leave;
                             }
                         }
-                        
+
                     }
                 }
             }
-            
+
             $minOrderRole = Approval::where('module', $module)
             ->where('order', Approval::where('module', $module)->min('order'))
             ->value('role_id');
-    
+
             foreach ($leaves as $leave) {
                 $approveStatus=ApprovalStatus::where('module', $module)
                         ->where('module_id', $leave->id)
@@ -90,7 +90,7 @@ class LeaveController extends Controller
                     $statusChecked=ApprovalStatus::where('module', $module)
                         ->where('module_id','=',$leave->id)
                         ->where('role_id','=',$roleId)->first();
-    
+
                     if(isset($statusChecked)){
                         $leave->statusChecked=1;
                         $leave->leaveStatus=$statusChecked->status;
@@ -100,7 +100,7 @@ class LeaveController extends Controller
                     }
                 }
             }
-            
+
 
             return view('leave.index', compact('leaves','isAdmin'));
         }
@@ -183,7 +183,7 @@ class LeaveController extends Controller
                     $extension = $request->file('attachment')->getClientOriginalExtension();
                     $fileNameToStore = $filename.'_'.time().'.'.$extension;
                     $path = $request->file('attachment')->storeAs('leave', $fileNameToStore);
-        
+
                     $leave->attachment = $fileNameToStore;
                 }
 
@@ -266,17 +266,17 @@ class LeaveController extends Controller
                     $leave->remark           = !empty($request->remark) ? $request->remark : '';
 
                     if ($request->hasFile('attachment')) {
-                        
+
                         if(!empty($leave->attachment)){
                             Storage::delete('leave/' . $leave->attachment);
                         }
-        
+
                         $filenameWithExt = $request->file('attachment')->getClientOriginalName();
                         $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
                         $extension = $request->file('attachment')->getClientOriginalExtension();
                         $fileNameToStore = $filename.'_'.time().'.'.$extension;
                         $path = $request->file('attachment')->storeAs('leave', $fileNameToStore);
-        
+
                         $leave->attachment = $fileNameToStore;
                     }
 
@@ -401,7 +401,7 @@ class LeaveController extends Controller
     {
             $userId=auth()->user()->id;
             $roleId = DB::table('model_has_roles')->where('model_id', $userId)->value('role_id');
-    
+
             ApprovalStatus::create([
                 "module" => "leave",
                 "module_id" => $id,
@@ -409,17 +409,17 @@ class LeaveController extends Controller
                 "role_id" => $roleId,
                 "status" => 1
             ]);
-    
+
             $totalApproval = Approval::where('module', operator: 'leave')->count();
-    
+
             $totalApproved = ApprovalStatus::where('module', 'leave')->where('module_id', $id)->count();
-    
+
             Leave::where('id', $id)->update(['status' => 'Approved']);
-    
+
             // if($totalApproval == $totalApproved){
             //     Leave::where('id', $id)->update(['status' => 'Approved']);
             // }
-    
+
             return redirect()->route('leave.index')->with('success', __('Leave Approved.'));
     }
 

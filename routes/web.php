@@ -62,6 +62,7 @@ use App\Http\Controllers\JobStageController;
 use App\Http\Controllers\JournalEntryController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LateCauseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadStageController;
 use App\Http\Controllers\LeaveController;
@@ -1718,6 +1719,7 @@ Route::get('export-pdf/employee', [EmployeeController::class, 'exportPDF'])->nam
 Route::prefix('/device-attendanceemployee')->middleware(['auth', 'XSS'])->group(function () {
     Route::as('device-attendanceemployee.')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('lists');
+        Route::get('/details', [AttendanceController::class, 'indexDetails'])->name('details');
         Route::get('/fetch-logs', [AttendanceController::class, 'fetchLogs'])->name('fetchLogs');
         Route::get('/create-employee', [AttendanceController::class, 'createEmployee']);
         Route::get('import/attendance/file', [AttendanceController::class, 'importFile'])->name('file.import');
@@ -1731,3 +1733,6 @@ Route::prefix('/device-attendanceemployee')->middleware(['auth', 'XSS'])->group(
 
 // Route for single employee meeting
 Route::resource('employee-meetings', SingleMeetingController::class)->except(['show']);
+
+// Route for employee late cause
+Route::resource('employee-late-causes', LateCauseController::class)->except(['show']);

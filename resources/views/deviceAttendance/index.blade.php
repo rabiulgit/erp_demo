@@ -104,6 +104,12 @@
                                                     class="ti ti-trash-off text-white-off "></i></span>
                                         </a>
 
+                                        <a href="{{ route('device-attendanceemployee.details') }}"
+                                        class="btn btn-sm btn-danger " data-bs-toggle="tooltip"
+                                        title="{{ __('Reset') }}" data-original-title="{{ __('Reset') }}">
+                                        <span class="btn-inner--icon">Reports</span>
+                                    </a>
+
 
                                     </div>
 
@@ -143,6 +149,8 @@
                             <tbody>
 
                                 @foreach ($attendanceEmployee as $key => $attendance)
+
+
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $attendance->employee_id }}</td>
@@ -186,6 +194,14 @@
                                                 if (in_array($attendanceDate, $meetingDates)) {
                                                     $status = 'Meeting';
                                                 }
+                                            }elseif($attendance->late != "00:00:00"){
+                                                $status = 'Late';
+                                            }
+                                            elseif($attendance->early_leaving != "00:00:00"){
+                                                $status = 'Early_leaving';
+                                            }
+                                            elseif($attendance->early_leaving != "00:00:00" && $attendance->early_leaving != "00:00:00"){
+                                                $status = 'Early_leaving';
                                             }
                                             // Check for Leave
                                             elseif (!$employee?->leaves->isEmpty()) {
@@ -208,6 +224,8 @@
                                                 'Off' => ['class' => 'bg-info', 'label' => 'Holiday'],
                                                 'Leave' => ['class' => 'bg-danger', 'label' => 'Leave'],
                                                 'Absent' => ['class' => 'bg-danger', 'label' => 'Absent'],
+                                                'Late' => ['class' => 'bg-warning', 'label' => 'Present/L'],
+                                                'Early_leaving' => ['class' => 'bg-warning', 'label' => 'Present/EL'],
                                             ];
 
                                             $badgeClass = $badgeStyles[$status]['class'];

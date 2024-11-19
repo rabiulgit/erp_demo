@@ -38,11 +38,7 @@
 {{--@endsection--}}
 @section('content')
 
-
     <div class="row">
-
-
-
 
         <div class="col-sm-12">
             @if (session('status'))
@@ -124,7 +120,7 @@
     </div>
 
 
-    <div class="row">
+    <div class="row" id="printableArea">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body table-border-style">
