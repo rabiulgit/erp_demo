@@ -72,7 +72,7 @@
                                                 @if ($leave->leaveStatus == 0)
                                                     <div class="status_badge badge bg-danger p-2 px-3 rounded">Rejected</div>
                                                 @else
-                                                    <div class="status_badge badge bg-success p-2 px-3 rounded">Approved</div>                                               
+                                                    <div class="status_badge badge bg-success p-2 px-3 rounded">Approved</div>
                                                 @endif
                                             @endif
                                         @else
