@@ -230,36 +230,38 @@
         </div>
 
 
-        <!--<div class="row">-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4 ">-->
-        <!--            <div class="float-left">-->
-        <!--                <h6 class=" mb-0">{{ __('Attendance') }}</h6>-->
-        <!--                <h7 class="text-sm text-sm mb-0 float-start">{{ __('Total present') }}: {{ $data['totalPresent'] }}</h7>-->
-        <!--                <h7 class="text-sm mb-0 float-end">{{ __('Total leave') }} : {{ $data['totalLeave'] }}</h7>-->
-        <!--            </div>-->
+        <div class="row">
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0">{{ __('Attendance') }}</h6>
+                    <h7 class="text-sm mb-0">{{ __('Total present') }} : {{ $data['totalPresent'] }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total leave') }} : {{ $data['totalLeave'] }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total meeting') }} : {{ $data['totalMeetings'] }}</h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0">{{ __('Employee late') }}</h6>
+                    <h7 class="text-sm mb-0">{{ __('Total late in Days') }} : {{ $data['totalLateDays'] }} </h7>
+                    <h7 class="text-sm mb-0">{{ __('Total late in Hours') }} : {{ number_format($data['totalLate'], 2) }}</h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0">{{ __('Early leave') }}</h6>
+                    <h7 class="text-sm mb-0">{{ __('Early leave in days') }} : {{ number_format($data['earlyLeaveDays'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Early leave in hours') }} : {{ number_format($data['totalEarlyLeave'], 2) }}</h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0">{{ __('Overtime') }}</h6>
+                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ number_format($data['totalOverTimeDays'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ number_format($data['totalOvertime'], 2) }}</h7>
+                </div>
+            </div>
+        </div>
 
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0">{{ __('Overtime') }}</h6>-->
-        <!--            <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ number_format($data['totalOvertime'], 2) }}</h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0">{{ __('Early leave') }}</h6>-->
-        <!--            <h7 class="text-sm mb-0">{{ __('Total early leave in hours') }} : {{ number_format($data['totalEarlyLeave'], 2) }}</h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0">{{ __('Employee late') }}</h6>-->
-        <!--            <h7 class="text-sm mb-0">{{ __('Total late in hours') }} : {{ number_format($data['totalLate'], 2) }}</h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--</div>-->
 
 
         <div class="row">
