@@ -1,4 +1,3 @@
-
 <?php $__env->startSection('page-title'); ?>
     <?php echo e(__('Manage Monthly Attendance')); ?>
 
@@ -103,11 +102,10 @@
 <?php $__env->stopPush(); ?>
 
 
-
 <?php $__env->startSection('action-btn'); ?>
     <div class="float-end">
-        <a href="#" class="btn btn-sm btn-primary" onclick="saveAsPDF()" data-bs-toggle="tooltip" title="<?php echo e(__('Download')); ?>"
-           data-original-title="<?php echo e(__('Download')); ?>">
+        <a href="#" class="btn btn-sm btn-primary" onclick="saveAsPDF()" data-bs-toggle="tooltip"
+            title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>">
             <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
         </a>
 
@@ -124,61 +122,72 @@
             <div class=" mt-2 " id="multiCollapseExample1">
                 <div class="card">
                     <div class="card-body">
-                        <?php echo e(Form::open(array('route' => array('device-attendanceemployee.report.monthly.attendance'),'method'=>'get','id'=>'report_monthly_attendance'))); ?>
+                        <?php echo e(Form::open(['route' => ['device-attendanceemployee.report.monthly.attendance'], 'method' => 'get', 'id' => 'report_monthly_attendance'])); ?>
 
                         <div class="row align-items-center justify-content-end">
                             <div class="col-xl-10">
                                 <div class="row">
                                     <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
                                         <div class="btn-box">
-                                            <?php echo e(Form::label('month',__('Month'),['class'=>'form-label'])); ?>
+                                            <?php echo e(Form::label('month', __('Month'), ['class' => 'form-label'])); ?>
 
-                                            <?php echo e(Form::month('month',isset($_GET['month'])?$_GET['month']:date('Y-m'),array('class'=>'month-btn form-control'))); ?>
+                                            <?php echo e(Form::month('month', isset($_GET['month']) ? $_GET['month'] : date('Y-m'), ['class' => 'month-btn form-control'])); ?>
 
                                         </div>
                                     </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                        <div class="btn-box">
-                                            <?php echo e(Form::label('branch', __('Branch'),['class'=>'form-label'])); ?>
+                                    <?php if(auth()->user()->type != 'Employee'): ?>
+                                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                            <div class="btn-box">
+                                                <?php echo e(Form::label('branch', __('Branch'), ['class' => 'form-label'])); ?>
 
-                                            
+                                                
 
-                                            <select class="form-control select" name="branch_id" id="branch_id"  placeholder="Select Branch" required>
-                                                <option value=""><?php echo e(__('Select Branch')); ?></option>
-                                                <option value="0"><?php echo e(__('All Branch')); ?></option>
-                                                <?php $__currentLoopData = $branch; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $branch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <option value="<?php echo e($branch->id); ?>"><?php echo e($branch->name); ?></option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            </select>
+                                                <select class="form-control select" name="branch_id" id="branch_id"
+                                                    placeholder="Select Branch" required>
+                                                    <option value=""><?php echo e(__('Select Branch')); ?></option>
+                                                    <option value="0"><?php echo e(__('All Branch')); ?></option>
+                                                    <?php $__currentLoopData = $branch; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $branch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($branch->id); ?>"><?php echo e($branch->name); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                        <div class="btn-box" id="department_div">
-                                            <?php echo e(Form::label('department', __('Department'),['class'=>'form-label'])); ?>
+                                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                            <div class="btn-box" id="department_div">
+                                                <?php echo e(Form::label('department', __('Department'), ['class' => 'form-label'])); ?>
 
-                                            
-                                            <select class="form-control select" name="department_id[]" id="department_id" required="required" placeholder="Select Department" >
-                                            </select>
+                                                
+                                                <select class="form-control select" name="department_id[]"
+                                                    id="department_id" required="required" placeholder="Select Department">
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
-                                        <div class="btn-box" id="employee_div">
-                                            <?php echo e(Form::label('employee', __('Employee'),['class'=>'form-label'])); ?>
+                                        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 col-12">
+                                            <div class="btn-box" id="employee_div">
+                                                <?php echo e(Form::label('employee', __('Employee'), ['class' => 'form-label'])); ?>
 
-                                            <select class="form-control select" name="employee_id[]" id="employee_id" placeholder="Select Employee" >
-                                            </select>
+                                                <select class="form-control select" name="employee_id[]" id="employee_id"
+                                                    placeholder="Select Employee">
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-auto">
                                 <div class="row">
                                     <div class="col-auto mt-4">
-                                        <a href="#" class="btn btn-sm btn-primary" onclick="document.getElementById('report_monthly_attendance').submit(); return false;" data-bs-toggle="tooltip" title="<?php echo e(__('Apply')); ?>" data-original-title="<?php echo e(__('apply')); ?>">
+                                        <a href="#" class="btn btn-sm btn-primary"
+                                            onclick="document.getElementById('report_monthly_attendance').submit(); return false;"
+                                            data-bs-toggle="tooltip" title="<?php echo e(__('Apply')); ?>"
+                                            data-original-title="<?php echo e(__('apply')); ?>">
                                             <span class="btn-inner--icon"><i class="ti ti-search"></i></span>
                                         </a>
-                                        <a href="<?php echo e(route('device-attendanceemployee.report.monthly.attendance')); ?>" class="btn btn-sm btn-danger " data-bs-toggle="tooltip"  title="<?php echo e(__('Reset')); ?>" data-original-title="<?php echo e(__('Reset')); ?>">
-                                            <span class="btn-inner--icon"><i class="ti ti-trash-off text-white-off "></i></span>
+                                        <a href="<?php echo e(route('device-attendanceemployee.report.monthly.attendance')); ?>"
+                                            class="btn btn-sm btn-danger " data-bs-toggle="tooltip"
+                                            title="<?php echo e(__('Reset')); ?>" data-original-title="<?php echo e(__('Reset')); ?>">
+                                            <span class="btn-inner--icon"><i
+                                                    class="ti ti-trash-off text-white-off "></i></span>
                                         </a>
                                     </div>
                                 </div>
@@ -195,13 +204,15 @@
     <div id="printableArea">
         <div class="row">
             <div class="col">
-                <input type="hidden" value="<?php echo e($data['branch'] .' '.__('Branch') .' '.$data['curMonth'].' '.__('Attendance Report of').' '. $data['department'].' '.'Department'); ?>" id="filename">
+                <input type="hidden"
+                    value="<?php echo e($data['branch'] . ' ' . __('Branch') . ' ' . $data['curMonth'] . ' ' . __('Attendance Report of') . ' ' . $data['department'] . ' ' . 'Department'); ?>"
+                    id="filename">
                 <div class="card p-4 mb-4">
                     <h6 class="mb-0"><?php echo e(__('Report')); ?> :</h6>
                     <h7 class="text-sm mb-0"><?php echo e(__('Attendance Summary')); ?></h7>
                 </div>
             </div>
-            <?php if($data['branch']!='All'): ?>
+            <?php if($data['branch'] != 'All'): ?>
                 <div class="col">
                     <div class="card p-4 mb-4">
                         <h6 class=" mb-0"><?php echo e(__('Branch')); ?> :</h6>
@@ -209,7 +220,7 @@
                     </div>
                 </div>
             <?php endif; ?>
-            <?php if($data['department']!='All'): ?>
+            <?php if($data['department'] != 'All'): ?>
                 <div class="col">
                     <div class="card p-4 mb-4">
                         <h6 class=" mb-0"><?php echo e(__('Department')); ?> :</h6>
@@ -226,36 +237,38 @@
         </div>
 
 
-        <!--<div class="row">-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4 ">-->
-        <!--            <div class="float-left">-->
-        <!--                <h6 class=" mb-0"><?php echo e(__('Attendance')); ?></h6>-->
-        <!--                <h7 class="text-sm text-sm mb-0 float-start"><?php echo e(__('Total present')); ?>: <?php echo e($data['totalPresent']); ?></h7>-->
-        <!--                <h7 class="text-sm mb-0 float-end"><?php echo e(__('Total leave')); ?> : <?php echo e($data['totalLeave']); ?></h7>-->
-        <!--            </div>-->
+        <div class="row">
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0"><?php echo e(__('Attendance')); ?></h6>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total present')); ?> : <?php echo e($data['totalPresent']); ?></h7>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total leave')); ?> : <?php echo e($data['totalLeave']); ?></h7>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total meeting')); ?> : <?php echo e($data['totalMeetings']); ?></h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0"><?php echo e(__('Employee late')); ?></h6>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total late in Days')); ?> : <?php echo e($data['totalLateDays']); ?> </h7>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total late in Hours')); ?> : <?php echo e(number_format($data['totalLate'], 2)); ?></h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0"><?php echo e(__('Early leave')); ?></h6>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Early leave in days')); ?> : <?php echo e(number_format($data['earlyLeaveDays'], 2)); ?></h7>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Early leave in hours')); ?> : <?php echo e(number_format($data['totalEarlyLeave'], 2)); ?></h7>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 col-lg-3">
+                <div class="card p-4 mb-4">
+                    <h6 class="mb-0"><?php echo e(__('Overtime')); ?></h6>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total overtime in hours')); ?> : <?php echo e(number_format($data['totalOverTimeDays'], 2)); ?></h7>
+                    <h7 class="text-sm mb-0"><?php echo e(__('Total overtime in hours')); ?> : <?php echo e(number_format($data['totalOvertime'], 2)); ?></h7>
+                </div>
+            </div>
+        </div>
 
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0"><?php echo e(__('Overtime')); ?></h6>-->
-        <!--            <h7 class="text-sm mb-0"><?php echo e(__('Total overtime in hours')); ?> : <?php echo e(number_format($data['totalOvertime'],2)); ?></h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0"><?php echo e(__('Early leave')); ?></h6>-->
-        <!--            <h7 class="text-sm mb-0"><?php echo e(__('Total early leave in hours')); ?> : <?php echo e(number_format($data['totalEarlyLeave'],2)); ?></h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--    <div class="col-xl-3 col-md-6 col-lg-3">-->
-        <!--        <div class="card p-4 mb-4">-->
-        <!--            <h6 class=" mb-0"><?php echo e(__('Employee late')); ?></h6>-->
-        <!--            <h7 class="text-sm mb-0"><?php echo e(__('Total late in hours')); ?> : <?php echo e(number_format($data['totalLate'],2)); ?></h7>-->
-        <!--        </div>-->
-        <!--    </div>-->
-        <!--</div>-->
 
 
         <div class="row">
@@ -265,35 +278,35 @@
                         <div class="table-responsive py-4 attendance-table-responsive">
                             <table class="table">
                                 <thead>
-                                <tr>
-                                    <th class="active"><?php echo e(__('Name')); ?></th>
-                                    <?php $__currentLoopData = $dates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <th><?php echo e($date); ?></th>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </tr>
+                                    <tr>
+                                        <th class="active"><?php echo e(__('Name')); ?></th>
+                                        <?php $__currentLoopData = $dates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $date): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <th><?php echo e($date); ?></th>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </tr>
                                 </thead>
                                 <tbody>
 
-                                <?php $__currentLoopData = $employeesAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attendance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                    <tr>
-                                        <td><?php echo e($attendance['name']); ?></td>
-                                        <?php $__currentLoopData = $attendance['status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <td>
-                                                <?php if($status=='P'): ?>
-                                                    
-                                                    <i class="badge bg-success p-2 rounded"><?php echo e(__('P')); ?></i>
-                                                <?php elseif($status=='A'): ?>
-                                                    <i class="badge bg-danger p-2 rounded"><?php echo e(__('A')); ?></i>
-                                                <?php elseif($status=='off'): ?>
-                                                <i class="badge bg-danger p-2 rounded"><?php echo e(__('H')); ?></i>
-                                                <?php elseif($status=='GH'): ?>
-                                                <i class="badge bg-danger p-2 rounded"><?php echo e(__('GH')); ?></i>
-                                                <?php endif; ?>
-                                            </td>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    </tr>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $employeesAttendance; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attendance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <tr>
+                                            <td><?php echo e($attendance['name']); ?></td>
+                                            <?php $__currentLoopData = $attendance['status']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <td>
+                                                    <?php if($status == 'M'): ?>
+                                                        <i class="badge bg-info p-2 rounded"><?php echo e(__('P/M')); ?></i>
+                                                    <?php elseif($status == 'P'): ?>
+                                                        <i class="badge bg-success p-2 rounded"><?php echo e(__('P')); ?></i>
+                                                    <?php elseif($status == 'A'): ?>
+                                                        <i class="badge bg-warning p-2 rounded"><?php echo e(__('L')); ?></i>
+                                                    <?php elseif($status == 'off'): ?>
+                                                        <i class="badge bg-danger p-2 rounded"><?php echo e(__('H')); ?></i>
+                                                    <?php elseif($status == 'GH'): ?>
+                                                        <i class="badge bg-danger p-2 rounded"><?php echo e(__('GH')); ?></i>
+                                                    <?php endif; ?>
+                                                </td>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </tr>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </tbody>
                             </table>
                         </div>
