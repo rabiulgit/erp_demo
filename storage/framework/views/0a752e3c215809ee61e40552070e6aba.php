@@ -433,7 +433,10 @@
                                     <?php endif; ?>
                                 </li>
 
-                                
+                                <li class="dash-item ">
+                                    <a class="dash-link"
+                                        href="<?php echo e(route('employee-causes.index')); ?>"><?php echo e(__('Employees causes')); ?></a>
+                                </li>
                                 <?php if(Gate::check('manage set salary') || Gate::check('manage pay slip')): ?>
                                     <li
                                         class="dash-item dash-hasmenu  <?php echo e(Request::segment(1) == 'setsalary' || Request::segment(1) == 'payslip' ? 'active dash-trigger' : ''); ?>">

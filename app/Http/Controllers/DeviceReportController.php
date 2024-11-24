@@ -6,6 +6,7 @@ use App\Models\AttendanceLog;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeCause;
 use App\Models\Holiday;
 use App\Models\User;
 use Carbon\Carbon;
@@ -56,9 +57,11 @@ class DeviceReportController extends Controller
                 }
 
                 // Initialize variables for attendance summary
+
                 $employeesAttendance = [];
-                $totalPresent = $totalLeave = $totalEarlyLeave = 0;
+                $totalPresent = $totalLeave = $totalEarlyLeave =  $total_meetings = $earlyLeaveDays = $totalOverTimeDays =  0;
                 $ovetimeHours = $overtimeMins = $earlyleaveHours = $earlyleaveMins = $lateHours = $lateMins = 0;
+                $lateDays = 0;
 
                 $attendances['name'] = $employee->name;
                 $attendances['employee_id'] = $employee->employee_id;
@@ -104,6 +107,7 @@ class DeviceReportController extends Controller
                             if (in_array($employeeAttendance?->date, $meetingDates)) {
 
                                 $employee_meeting = true;
+                                $total_meetings += 1;
                             }
                         }
 
@@ -115,24 +119,27 @@ class DeviceReportController extends Controller
 
                                 $attendanceStatus[$date] = 'P';
                                 $totalPresent += 1;
-                                if ($employeeAttendance->overtime > 0) {
+                                if ($employeeAttendance->overtime != "00:00:00") {
                                     $overtime = Carbon::parse($employeeAttendance->overtime);
                                     // Add hours and minutes from late time
                                     $ovetimeHours += $overtime->hour; // Get hours
                                     $overtimeMins += $overtime->minute; // Get minutes
+                                    $totalOverTimeDays += 1;
                                 }
 
-                                if ($employeeAttendance->early_leaving > 0) {
+                                if ($employeeAttendance->early_leaving != "00:00:00") {
                                     $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
                                     // Add hours and minutes from late time
                                     $earlyleaveHours += $early_leaving->hour; // Get hours
                                     $earlyleaveMins += $early_leaving->minute; // Get minutes
+                                    $earlyLeaveDays += 1;
                                 }
 
-                                if ($employeeAttendance->late > 0) {
+                                if ($employeeAttendance->late != "00:00:00") {
                                     $lateTime = Carbon::parse($employeeAttendance->late);
                                     $lateHours += $lateTime->hour; // Get hours
                                     $lateMins += $lateTime->minute; // Get minutes
+                                    $lateDays += 1;
                                 }
                             } elseif ($employee_leave) {
                                 $attendanceStatus[$date] = 'A';
@@ -166,6 +173,11 @@ class DeviceReportController extends Controller
                 $data['totalPresent'] = $totalPresent;
                 $data['totalLeave'] = $totalLeave;
                 $data['curMonth'] = $curMonth;
+                $data['totalLateDays'] = $lateDays;
+                $data['earlyLeaveDays'] = $earlyLeaveDays;
+                $data['totalOverTimeDays'] = $totalOverTimeDays;
+                $data['totalMeetings'] = $total_meetings;
+                $data['employee_causes'] = EmployeeCause::with('employee')->where('created_by',Auth()->id())->get();
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
             } else {
@@ -230,7 +242,7 @@ class DeviceReportController extends Controller
                 $totalPresent = $totalLeave = $totalEarlyLeave =  $total_meetings = $earlyLeaveDays = $totalOverTimeDays =  0;
                 $ovetimeHours = $overtimeMins = $earlyleaveHours = $earlyleaveMins = $lateHours = $lateMins = 0;
                 $lateDays = 0;
-                $test = 0;
+
 
 
 
@@ -353,6 +365,7 @@ class DeviceReportController extends Controller
                 $data['earlyLeaveDays'] = $earlyLeaveDays;
                 $data['totalOverTimeDays'] = $totalOverTimeDays;
                 $data['curMonth'] = $curMonth;
+                $data['employee_causes'] = EmployeeCause::with('employee')->get();
 
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
