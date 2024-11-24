@@ -42,6 +42,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DucumentUploadController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\EmployeeCauseController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExpenseController;
@@ -62,7 +63,6 @@ use App\Http\Controllers\JobStageController;
 use App\Http\Controllers\JournalEntryController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\LateCauseController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LeadStageController;
 use App\Http\Controllers\LeaveController;
@@ -1735,4 +1735,4 @@ Route::prefix('/device-attendanceemployee')->middleware(['auth', 'XSS'])->group(
 Route::resource('employee-meetings', SingleMeetingController::class)->except(['show']);
 
 // Route for employee late cause
-Route::resource('employee-late-causes', LateCauseController::class)->except(['show']);
+Route::resource('employee-causes', EmployeeCauseController::class)->except(['show']);

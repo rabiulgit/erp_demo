@@ -231,34 +231,64 @@
 
 
         <div class="row">
-            <div class="col-xl-3 col-md-6 col-lg-3">
+            <div class="col-xl-4 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
                     <h6 class="mb-0">{{ __('Attendance') }}</h6>
                     <h7 class="text-sm mb-0">{{ __('Total present') }} : {{ $data['totalPresent'] }}</h7>
                     <h7 class="text-sm mb-0">{{ __('Total leave') }} : {{ $data['totalLeave'] }}</h7>
-                    <h7 class="text-sm mb-0">{{ __('Total meeting') }} : {{ $data['totalMeetings'] }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total meeting') }} : {{ @$data['totalMeetings'] }}</h7>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 col-lg-3">
+            <div class="col-xl-4 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
                     <h6 class="mb-0">{{ __('Employee late') }}</h6>
-                    <h7 class="text-sm mb-0">{{ __('Total late in Days') }} : {{ $data['totalLateDays'] }} </h7>
+                    <h7 class="text-sm mb-0">{{ __('Total late in Days') }} : {{ @$data['totalLateDays'] }} </h7>
                     <h7 class="text-sm mb-0">{{ __('Total late in Hours') }} : {{ number_format($data['totalLate'], 2) }}</h7>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 col-lg-3">
+            <div class="col-xl-4 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
                     <h6 class="mb-0">{{ __('Early leave') }}</h6>
-                    <h7 class="text-sm mb-0">{{ __('Early leave in days') }} : {{ number_format($data['earlyLeaveDays'], 2) }}</h7>
-                    <h7 class="text-sm mb-0">{{ __('Early leave in hours') }} : {{ number_format($data['totalEarlyLeave'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Early leave in days') }} : {{ @number_format($data['earlyLeaveDays'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Early leave in hours') }} : {{ @number_format($data['totalEarlyLeave'], 2) }}</h7>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6 col-lg-3">
+            {{-- <div class="col-xl-3 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
                     <h6 class="mb-0">{{ __('Overtime') }}</h6>
-                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ number_format($data['totalOverTimeDays'], 2) }}</h7>
-                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ number_format($data['totalOvertime'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ @number_format($data['totalOverTimeDays'], 2) }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ @number_format($data['totalOvertime'], 2) }}</h7>
                 </div>
+            </div> --}}
+        </div>
+
+        <div class="col-xl-12 col-md-12 col-lg-3">
+            <div class="card p-4 mb-4">
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">SN</th>
+                        <th scope="col">Employee</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Cause type</th>
+                        <th scope="col">Cause</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($data['employee_causes'] ?? []  as $key => $cause)
+                      <tr>
+
+                        <td>{{$key+1}}</td>
+                        <td>{{$cause?->employee->name ?? "N/A"}}</td>
+                        <td>{{$cause->date ?? "N/A"}}</td>
+                        <td>{{$cause->time ?? "N/A"}}</td>
+                        <td>{{$cause->type ?? "N/A"}}</td>
+                        <td>{{$cause->note ?? "N/A"}}</td>
+                      </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
             </div>
         </div>
 
