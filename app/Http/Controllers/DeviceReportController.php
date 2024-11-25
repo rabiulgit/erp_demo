@@ -199,6 +199,9 @@ class DeviceReportController extends Controller
                 // Employees attendance filter base on employee selection
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
                     $employees->whereIn('id', $request->employee_id);
+                    $data['employee_causes'] = EmployeeCause::with('employee')->whereIn('employee_id',$request->employee_id)->get();
+                }else{
+                    $data['employee_causes'] = [];
                 }
 
                 // Employee filtered base on creator_id
@@ -239,12 +242,9 @@ class DeviceReportController extends Controller
 
                 // defined initial data
                 $employeesAttendance = [];
-                $totalPresent = $totalLeave = $totalEarlyLeave =  $total_meetings = $earlyLeaveDays = $totalOverTimeDays =  0;
+                $totalPresent = $totalLeave = $totalEarlyLeave =  $total_meetings = $earlyLeaveDays = $totalOverTimeDays = $totalAbsent =  0;
                 $ovetimeHours = $overtimeMins = $earlyleaveHours = $earlyleaveMins = $lateHours = $lateMins = 0;
                 $lateDays = 0;
-
-
-
 
                 foreach ($employees as $id => $employee) {
 
@@ -337,7 +337,11 @@ class DeviceReportController extends Controller
                                     $attendanceStatus[$date] = 'GH';
                                 } elseif ($dayName == "Friday" || $dayName == "Saturday") {
                                     $attendanceStatus[$date] = 'off';
-                                } else {
+                                }
+                             elseif ($employeeAttendance->status == 'Absent') {
+                                $attendanceStatus[$date] = 'AA';
+                                $totalAbsent += 1;
+                            } else {
                                     $attendanceStatus[$date] = '';
                                 }
                             } else {
@@ -363,13 +367,14 @@ class DeviceReportController extends Controller
                 $data['totalMeetings'] = $total_meetings;
                 $data['totalLateDays'] = $lateDays;
                 $data['earlyLeaveDays'] = $earlyLeaveDays;
+                $data['totalAbsentDays'] = $totalAbsent;
                 $data['totalOverTimeDays'] = $totalOverTimeDays;
                 $data['curMonth'] = $curMonth;
-                $data['employee_causes'] = EmployeeCause::with('employee')->get();
 
+            return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
 
-                return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
-            } else {
+        }
+            else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
         }
