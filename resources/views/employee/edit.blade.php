@@ -191,65 +191,6 @@
         </div>
         {{-- Family End --}}
 
-        {{-- Company Details Start --}}
-        <div class="col-md-6 ">
-            <div class="card emp_details">
-                <div class="card-header">
-                    <h6 class="mb-0">{{ __('Company Detail') }}</h6>
-                </div>
-                <div class="card-body employee-detail-edit-body">
-                    <div class="row">
-                        @csrf
-                        <div class="form-group col-md-12">
-                            {!! Form::label('employee_id', __('Employee ID'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
-                            {!! Form::text('employee_id', $employee->employee_id, ['class' => 'form-control']) !!}
-                        </div>
-
-                        <div class="form-group col-md-6">
-                            {{ Form::label('branch_id', __('Branch'), ['class' => 'form-label']) }}
-                            {{ Form::select('branch_id', $branches, null, ['class' => 'form-control select', 'id' => 'branch_id']) }}
-                        </div>
-                        <div class="form-group col-md-6">
-                            {{ Form::label('department_id', __('Department'), ['class' => 'form-label']) }}
-                            {{ Form::select('department_id', $departments, null, ['class' => 'form-control select', 'id' => 'department_id']) }}
-
-                            {{-- <select class=" select form-control " id="department_id" name="department_id"  >
-                                    @foreach ($departmentData as $key => $val)
-                                        <option value="{{$key}}" {{$key==$employee->department_id?'selected':''}}>{{$val}}</option>
-                                    @endforeach
-                                </select> --}}
-
-                        </div>
-                        <div class="form-group col-md-6">
-                            {{ Form::label('designation_id', __('Designation'), ['class' => 'form-label']) }}
-                            <select class="select form-control " id="designation_id" name="designation_id"></select>
-
-                        </div>
-                        <div class="form-group col-md-6">
-                            {!! Form::label('company_doj', 'Company Date Of Joining', ['class' => 'form-label']) !!}
-                            {!! Form::date('company_doj', null, ['class' => 'form-control']) !!}
-                        </div>
-
-                        <div class="form-group col-md-6">
-                            {!! Form::label('team_id', __('Assign to team'), ['class' => '  form-label']) !!}
-                            {{ Form::select('team_id', $teams, null, ['class' => 'form-control select', 'id' => 'team_id', 'placeholder' => 'Assign a Team']) }}
-                        </div>
-
-                        <div class="form-group col-md-6 d-flex align-items-end">
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="team_lead" name="team_lead"
-                                    value="1"
-                                    {{ !empty($employee['team_lead']) && $employee['team_lead'] == '1' ? 'checked' : '' }} />
-                                <label class="form-check-label f-w-600 pl-1"
-                                    for="team_lead">{{ __('Team Leader') }}</label>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- Company Details End --}}
 
         {{-- Document Start --}}
         <div class="col-md-6 ">
@@ -354,6 +295,61 @@
         {{-- Bank Account End --}}
 
         @if (\Auth::user()->type != 'Employee')
+            {{-- Company Details Start --}}
+            <div class="col-md-6 ">
+                <div class="card emp_details">
+                    <div class="card-header">
+                        <h6 class="mb-0">{{ __('Company Details') }}</h6>
+                    </div>
+                    <div class="card-body employee-detail-edit-body">
+                        <div class="row">
+                            @csrf
+                            <div class="form-group col-md-12">
+                                {!! Form::label('employee_id', __('Employee ID'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                {!! Form::text('employee_id', $employee->employee_id, ['class' => 'form-control']) !!}
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                {{ Form::label('branch_id', __('Branch'), ['class' => 'form-label']) }}
+                                {{ Form::select('branch_id', $branches, null, ['class' => 'form-control select', 'id' => 'branch_id']) }}
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ Form::label('department_id', __('Department'), ['class' => 'form-label']) }}
+                                {{ Form::select('department_id', $departments, null, ['class' => 'form-control select', 'id' => 'department_id']) }}
+
+                            </div>
+                            <div class="form-group col-md-6">
+                                {{ Form::label('designation_id', __('Designation'), ['class' => 'form-label']) }}
+                                <select class="select form-control " id="designation_id" name="designation_id"></select>
+
+                            </div>
+                            <div class="form-group col-md-6">
+                                {!! Form::label('company_doj', 'Company Date Of Joining', ['class' => 'form-label']) !!}
+                                {!! Form::date('company_doj', null, ['class' => 'form-control']) !!}
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                {!! Form::label('team_id', __('Assign to team'), ['class' => '  form-label']) !!}
+                                {{ Form::select('team_id', $teams, null, ['class' => 'form-control select', 'id' => 'team_id', 'placeholder' => 'Assign a Team']) }}
+                            </div>
+
+                            <div class="form-group col-md-6 d-flex align-items-end">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="team_lead" name="team_lead"
+                                        value="1"
+                                        {{ !empty($employee['team_lead']) && $employee['team_lead'] == '1' ? 'checked' : '' }} />
+                                    <label class="form-check-label f-w-600 pl-1"
+                                        for="team_lead">{{ __('Team Leader') }}</label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- Company Details End --}}
+
+
             {{-- Equipment Allocation Start --}}
             <div class="col-md-6">
                 <div class="card emp_details">
