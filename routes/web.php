@@ -1719,8 +1719,6 @@ Route::get('export-pdf/employee', [EmployeeController::class, 'exportPDF'])->nam
 Route::prefix('/device-attendanceemployee')->middleware(['auth', 'XSS'])->group(function () {
     Route::as('device-attendanceemployee.')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('lists');
-        Route::get('/details', [AttendanceController::class, 'indexDetails'])->name('details');
-        Route::get('/fetch-logs', [AttendanceController::class, 'fetchLogs'])->name('fetchLogs');
         Route::get('/create-employee', [AttendanceController::class, 'createEmployee']);
         Route::get('import/attendance/file', [AttendanceController::class, 'importFile'])->name('file.import');
 

@@ -237,6 +237,7 @@
                     <h7 class="text-sm mb-0">{{ __('Total present') }} : {{ $data['totalPresent'] }}</h7>
                     <h7 class="text-sm mb-0">{{ __('Total leave') }} : {{ $data['totalLeave'] }}</h7>
                     <h7 class="text-sm mb-0">{{ __('Total meeting') }} : {{ @$data['totalMeetings'] }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total Absent') }} : {{ @$data['totalAbsentDays'] }}</h7>
                 </div>
             </div>
             <div class="col-xl-4 col-md-6 col-lg-3">
@@ -262,6 +263,7 @@
             </div> --}}
         </div>
 
+        @if(!empty($data['employee_causes']))
         <div class="col-xl-12 col-md-12 col-lg-3">
             <div class="card p-4 mb-4">
                 <table class="table">
@@ -291,8 +293,7 @@
                   </table>
             </div>
         </div>
-
-
+        @endif
 
         <div class="row">
             <div class="col">
@@ -325,6 +326,8 @@
                                                         <i class="badge bg-danger p-2 rounded">{{ __('H') }}</i>
                                                     @elseif($status == 'GH')
                                                         <i class="badge bg-danger p-2 rounded">{{ __('GH') }}</i>
+                                                    @elseif($status == 'AA')
+                                                    <i class="badge bg-danger p-2 rounded">{{ __('A') }}</i>
                                                     @endif
                                                 </td>
                                             @endforeach

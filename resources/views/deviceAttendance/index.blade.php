@@ -103,14 +103,6 @@
                                             <span class="btn-inner--icon"><i
                                                     class="ti ti-trash-off text-white-off "></i></span>
                                         </a>
-
-                                        <a href="{{ route('device-attendanceemployee.details') }}"
-                                        class="btn btn-sm btn-danger " data-bs-toggle="tooltip"
-                                        title="{{ __('Reset') }}" data-original-title="{{ __('Reset') }}">
-                                        <span class="btn-inner--icon">Reports</span>
-                                    </a>
-
-
                                     </div>
 
                                 </div>
@@ -142,7 +134,7 @@
                                     <th>{{ __('Clock Out') }}</th>
                                     <th>{{ __('Late') }}</th>
                                     <th>{{ __('Early Leaving') }}</th>
-                                    <th>{{ __('Overtime') }}</th>
+                                    {{-- <th>{{ __('Overtime') }}</th> --}}
                                     <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
@@ -164,7 +156,7 @@
                                         </td>
                                         <td>{{ $attendance->late ?? '' }}</td>
                                         <td>{{ $attendance->early_leaving ?? '' }}</td>
-                                        <td>{{ $attendance->overtime ?? '' }}</td>
+                                        {{-- <td>{{ $attendance->overtime ?? '' }}</td> --}}
 
                                         @php
 

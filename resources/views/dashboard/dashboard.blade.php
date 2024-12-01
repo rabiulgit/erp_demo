@@ -115,7 +115,7 @@
                                 <h4>{{ __('Device Attendance Status') }}</h4>
                             </div>
                             <div class="card-body dash-card-body">
-                                @if (@$attendance?->status === 'Present')
+                                @if (isset($attendance?->status)?$attendance?->status : ""  === 'Present')
                                     <div class="row">
                                         <div class="col-md-6 mb-2">
                                             <div class="info text-md">
