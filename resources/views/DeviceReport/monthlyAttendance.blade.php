@@ -9,19 +9,33 @@
 @push('script-page')
     <script type="text/javascript" src="{{ asset('js/html2pdf.bundle.min.js') }}"></script>
     <script>
-        var filename = $('#filename').val();
 
+        var filename = $('#filename').val();
         function saveAsPDF() {
             var element = document.getElementById('printableArea');
             var opt = {
                 margin: 0.3,
                 filename: filename,
-                image: {type: 'jpeg', quality: 1},
-                html2canvas: {scale: 4, dpi: 72, letterRendering: true},
-                jsPDF: {unit: 'in', format: 'A2'}
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 4, dpi: 72, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'A2', orientation: 'landscape' } // Set orientation to landscape
             };
             html2pdf().set(opt).from(element).save();
         }
+
+
+        // function saveAsPDF() {
+        //     var element = document.getElementById('printableArea');
+        //     var opt = {
+        //         margin: 0.3,
+        //         filename: filename,
+        //         image: {type: 'jpeg', quality: 1},
+        //         html2canvas: {scale: 4, dpi: 72, letterRendering: true},
+        //         jsPDF: {unit: 'in', format: 'A2'}
+        //     };
+        //     html2pdf().set(opt).from(element).save();
+        // }
+
     </script>
 
     <script>
@@ -229,7 +243,6 @@
             </div>
         </div>
 
-
         <div class="row">
             <div class="col-xl-4 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
@@ -312,6 +325,7 @@
                                 <tbody>
 
                                     @foreach ($employeesAttendance as $attendance)
+
                                         <tr>
                                             <td>{{ $attendance['name'] }}</td>
                                             @foreach ($attendance['status'] as $status)
@@ -320,6 +334,17 @@
                                                         <i class="badge bg-info p-2 rounded">{{ __('P/M') }}</i>
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
+                                                    @elseif($status == 'PL')
+                                                        <i class="badge bg-danger p-2 rounded">{{ __('PL') }}</i>
+                                                        <i class="badge bg-warning p-2 rounded">{{ __('PL') }}</i>
+
+                                                    @elseif($status == 'PEL')
+                                                        <i class="badge bg-warning p-2 rounded">{{ __('PEL') }}</i>
+                                                    @elseif($status == 'PLEL')
+                                                        {{-- <i class="badge bg-warning p-2 rounded">{{ __('PLEL') }}</i> --}}
+                                                        <span class="badge p-2 rounded" style="background-color: #57e138; border: 2px solid rgb(245, 28, 35); color: white;">
+                                                            {{ __('P/') }} {{ __('L/E') }}
+                                                        </span>
                                                     @elseif($status == 'A')
                                                         <i class="badge bg-warning p-2 rounded">{{ __('L') }}</i>
                                                     @elseif($status == 'off')

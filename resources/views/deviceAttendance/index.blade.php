@@ -141,8 +141,6 @@
                             <tbody>
 
                                 @foreach ($attendanceEmployee as $key => $attendance)
-
-
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $attendance->employee_id }}</td>
@@ -157,7 +155,7 @@
                                         <td>{{ $attendance->late ?? '' }}</td>
                                         <td>{{ $attendance->early_leaving ?? '' }}</td>
                                         {{-- <td>{{ $attendance->overtime ?? '' }}</td> --}}
-
+                                        {{-- @dd($attendance); --}}
                                         @php
 
                                             $dayName = date('l', strtotime($attendance?->date));

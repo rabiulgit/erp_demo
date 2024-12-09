@@ -185,6 +185,7 @@ class DeviceReportController extends Controller
             }
         } else {
 
+            // report start from here
             if (\Auth::user()->can('manage attendance')) {
 
                 $branch = Branch::where('created_by', '=', Auth::user()->creatorId())->get();
@@ -194,7 +195,8 @@ class DeviceReportController extends Controller
                 $data['branch'] = __('All');
                 $data['department'] = __('All');
                 // Employee base query
-                $employees = Employee::with(['leaves', 'meetings']);
+                $employees = Employee::active()->with(['leaves', 'meetings']);
+
 
                 // Employees attendance filter base on employee selection
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
@@ -254,6 +256,7 @@ class DeviceReportController extends Controller
 
                         $dateFormat = $year . '-' . $month . '-' . $date;
 
+
                         if ($dateFormat <= date('Y-m-d')) {
 
                             $employeeAttendance = AttendanceLog::where('employee_id', $employee->employee_id)->where('date', $dateFormat)->first();
@@ -264,14 +267,12 @@ class DeviceReportController extends Controller
                             $employee_leave = false;
 
                             if (!empty($employeeAttendance)) {
-
                                 foreach ($holidays ?? [] as $holiday) {
                                     $start = Carbon::parse($holiday->date);
                                     $end = Carbon::parse($holiday->end_date);
                                     $check = Carbon::parse($employeeAttendance?->date);
 
                                     if ($check >= $start && $check <= $end) {
-                                        // dd('vitory',$employeeAttendance);
                                         $attendanceStatus[$date] = 'GH';
                                         $government_holiday = true;
                                     }
@@ -301,6 +302,7 @@ class DeviceReportController extends Controller
                                     }
                                 }
                             }
+
                             if (!empty($employeeAttendance) && $employeeAttendance?->date) {
 
                                 if ($employeeAttendance->late != "00:00:00") {
@@ -325,12 +327,27 @@ class DeviceReportController extends Controller
                                     $totalOverTimeDays += 1;
                                 }
 
-                                if ($employee_meeting) {
-                                    $attendanceStatus[$date] = 'M';
-                                } else if ($employeeAttendance->status == 'Present') {
+                                if ($employee_meeting && $employeeAttendance->status == 'Absent') {
+                                    $attendanceStatus[$date] = 'AM';
+                                }
+                                else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late == "00:00:00" && $employeeAttendance->early_leaving == "00:00:00") {
                                     $attendanceStatus[$date] = 'P';
                                     $totalPresent += 1;
-                                } elseif ($employee_leave) {
+                                }
+                                 else if ($employee_meeting && $employeeAttendance->status == 'Present') {
+                                    $attendanceStatus[$date] = 'PM';
+                                    $totalPresent += 1;
+                                }
+                                elseif ($employeeAttendance->late =! "00:00:00" && $employeeAttendance->early_leaving == "00:00:00") {
+                                    $attendanceStatus[$date] = 'PL';
+                                }
+                                elseif ($employeeAttendance->late == "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
+                                    $attendanceStatus[$date] = 'PEL';
+                                }
+                                elseif ($employeeAttendance->late != "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
+                                    $attendanceStatus[$date] = 'PLEL';
+                                }
+                                elseif ($employee_leave) {
                                     $attendanceStatus[$date] = 'A';
                                     $totalLeave += 1;
                                 } elseif ($government_holiday) {
@@ -354,7 +371,6 @@ class DeviceReportController extends Controller
                     $employeesAttendance[] = $attendances;
                 }
 
-
                 $totalOverTime = $ovetimeHours + ($overtimeMins / 60);
                 $totalEarlyleave = $earlyleaveHours + ($earlyleaveMins / 60);
                 $totalLate = $lateHours + ($lateMins / 60);
@@ -370,6 +386,8 @@ class DeviceReportController extends Controller
                 $data['totalAbsentDays'] = $totalAbsent;
                 $data['totalOverTimeDays'] = $totalOverTimeDays;
                 $data['curMonth'] = $curMonth;
+
+                dd($employeesAttendance);
 
             return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
 
