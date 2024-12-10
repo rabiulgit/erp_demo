@@ -335,15 +335,17 @@
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
                                                     @elseif($status == 'PL')
-                                                        <i class="badge bg-danger p-2 rounded">{{ __('PL') }}</i>
-                                                        <i class="badge bg-warning p-2 rounded">{{ __('PL') }}</i>
+                                                    <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid #ffc107; color: white;">
+                                                        {{ __('P/') }} {{ __('L') }}
+                                                    </span>
 
                                                     @elseif($status == 'PEL')
-                                                        <i class="badge bg-warning p-2 rounded">{{ __('PEL') }}</i>
+                                                    <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid #fcf400; color: white;">
+                                                        {{ __('P/') }} {{ __('EL') }}
+                                                    </span>
                                                     @elseif($status == 'PLEL')
-                                                        {{-- <i class="badge bg-warning p-2 rounded">{{ __('PLEL') }}</i> --}}
-                                                        <span class="badge p-2 rounded" style="background-color: #57e138; border: 2px solid rgb(245, 28, 35); color: white;">
-                                                            {{ __('P/') }} {{ __('L/E') }}
+                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(255, 7, 7); color: white;">
+                                                            {{ __('P/') }} {{ __('L/EL') }}
                                                         </span>
                                                     @elseif($status == 'A')
                                                         <i class="badge bg-warning p-2 rounded">{{ __('L') }}</i>
