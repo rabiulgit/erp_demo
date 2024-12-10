@@ -679,7 +679,10 @@ class PaySlipController extends Controller
 
     public function paysalary($id, $date)
     {
-        $employeePayslip = PaySlip::where('employee_id', '=', $id)->where('created_by', \Auth::user()->creatorId())->where('approval', 'approved')->where('salary_month', '=', $date)->first();
+        $employeePayslip = PaySlip::where('employee_id', '=', $id)
+        ->where('created_by', \Auth::user()->creatorId())
+        // ->where('approval', 'approved')
+        ->where('salary_month', '=', $date)->first();
         if (!empty($employeePayslip)) {
             $employeePayslip->status = 1;
             $employeePayslip->save();
