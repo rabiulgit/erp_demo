@@ -184,15 +184,33 @@
                                                 if (in_array($attendanceDate, $meetingDates)) {
                                                     $status = 'Meeting';
                                                 }
-                                            }elseif($attendance->late != "00:00:00"){
+                                            }
+
+                                            // Check for Meetings
+                                            elseif (!$employee?->meetings->isEmpty() && $attendance->status == 'Present') {
+                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
+                                                if (in_array($attendanceDate, $meetingDates)) {
+                                                    $status = 'P_Meeting';
+                                                }
+                                            }
+                                            elseif (!$employee?->meetings->isEmpty() && $attendance->status == 'Absent') {
+                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
+                                                if (in_array($attendanceDate, $meetingDates)) {
+                                                    $status = 'Meeting';
+                                                }
+                                            }
+                                            elseif($attendance->status == 'Present' && $attendance->late !== "00:00:00" && $attendance->early_leaving === "00:00:00"){
                                                 $status = 'Late';
                                             }
-                                            elseif($attendance->early_leaving != "00:00:00"){
+                                            elseif($attendance->status == 'Present' && $attendance->late === "00:00:00" && $attendance->early_leaving !== "00:00:00"){
                                                 $status = 'Early_leaving';
                                             }
-                                            elseif($attendance->early_leaving != "00:00:00" && $attendance->early_leaving != "00:00:00"){
-                                                $status = 'Early_leaving';
+                                            elseif($attendance->status == 'Present' && $attendance->late !== "00:00:00" && $attendance->early_leaving != "00:00:00"){
+                                                $status = 'late_early_leave';
                                             }
+
+
+
                                             // Check for Leave
                                             elseif (!$employee?->leaves->isEmpty()) {
                                                 $leave = $employee?->leaves->firstWhere(function ($leave) use (
@@ -216,6 +234,7 @@
                                                 'Absent' => ['class' => 'bg-danger', 'label' => 'Absent'],
                                                 'Late' => ['class' => 'bg-warning', 'label' => 'Present/L'],
                                                 'Early_leaving' => ['class' => 'bg-warning', 'label' => 'Present/EL'],
+                                                'late_early_leave' => ['class' => 'bg-warning', 'label' => 'Present/L/EL'],
                                             ];
 
                                             $badgeClass = $badgeStyles[$status]['class'];
