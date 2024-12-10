@@ -20,8 +20,10 @@ class AttendanceController extends Controller
             $user = \Auth::user();
 
             // $employees = Employee::get()->pluck('name', 'employee_id');
-            $employee = Employee::with(['leaves', 'meetings'])->where('user_id', $user->id)->where('created_by', \Auth::user()->creatorId())->first();
-
+            $employee = Employee::with(['leaves', 'meetings'])
+            ->where('user_id', $user->id)
+            ->where('created_by', \Auth::user()->creatorId())
+            ->first();
 
             $branch = Branch::where('created_by', \Auth::user()->creatorId())->get()->pluck('name', 'id');
             $branch->prepend('Select Branch', '');
@@ -68,10 +70,10 @@ class AttendanceController extends Controller
                     );
                 }
                 $attendanceEmployee = $attendanceEmployee->get();
+
             } else {
 
-
-                $employees = Employee::select('id', 'employee_id', 'name');
+                $employees = Employee::active()->select('id', 'employee_id', 'name');
 
                 if (!empty($request->branch)) {
                     $employees->where('branch_id', $request->branch);
@@ -136,7 +138,7 @@ class AttendanceController extends Controller
                     ->get();
             }
 
-            $employees = Employee::pluck('name', 'employee_id');
+            $employees = Employee::active()->pluck('name', 'employee_id');
 
 
             return view('deviceAttendance.index', compact('attendanceEmployee', 'branch', 'department', 'holidays', 'employees'));
