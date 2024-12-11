@@ -139,116 +139,92 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @foreach ($attendanceEmployee as $key => $attendance)
+                                <tr>
+                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $attendance->employee_id }}</td>
+                                    @if (\Auth::user()->type != 'Employee')
+                                        <td>{{ $attendance?->employee?->name ?? '' }}</td>
+                                    @endif
+                                    <td>{{ \Auth::user()->dateFormat($attendance->date) }}</td>
+                                    <td>{{ $attendance->clock_in != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_in) : '00:00' }}</td>
+                                    <td>{{ $attendance->clock_out != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_out) : '00:00' }}</td>
+                                    <td>{{ $attendance->late ?? '' }}</td>
+                                    <td>{{ $attendance->early_leaving ?? '' }}</td>
 
-                                @foreach ($attendanceEmployee as $key => $attendance)
-                                    <tr>
-                                        <td>{{ $key + 1 }}</td>
-                                        <td>{{ $attendance->employee_id }}</td>
-                                        @if (\Auth::user()->type != 'Employee')
-                                            <td>{{ $attendance?->employee?->name ?? '' }}</td>
-                                        @endif
-                                        <td>{{ \Auth::user()->dateFormat($attendance->date) }}</td>
-                                        <td>{{ $attendance->clock_in != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_in) : '00:00' }}
-                                        </td>
-                                        <td>{{ $attendance->clock_out != '00:00:00' ? \Auth::user()->timeFormat($attendance->clock_out) : '00:00' }}
-                                        </td>
-                                        <td>{{ $attendance->late ?? '' }}</td>
-                                        <td>{{ $attendance->early_leaving ?? '' }}</td>
-                                        {{-- <td>{{ $attendance->overtime ?? '' }}</td> --}}
-                                        {{-- @dd($attendance); --}}
-                                        @php
+                                    @php
+                                        $status = $attendance->status; // Default status
+                                        $dayName = date('l', strtotime($attendance?->date));
+                                        $attendanceDate = $attendance?->date;
+                                        $employee = $attendance?->employee;
 
-                                            $dayName = date('l', strtotime($attendance?->date));
-                                            $attendanceDate = $attendance?->date;
-                                            $employee = $attendance?->employee;
-                                            $status = $attendance->status; // Default status
-
-                                            // Check for General Holidays
-                                            $checkDate = \Carbon\Carbon::parse($attendance->date);
-
-                                            $isHoliday = $holidays->contains(function ($holiday) use ($checkDate) {
-                                                return $checkDate->between($holiday->date, $holiday->end_date);
+                                        // Define reusable functions for status checks
+                                        $isHoliday = function () use ($holidays, $attendanceDate) {
+                                            return $holidays->contains(function ($holiday) use ($attendanceDate) {
+                                                return \Carbon\Carbon::parse($attendanceDate)->between($holiday->date, $holiday->end_date);
                                             });
+                                        };
 
-                                            if ($isHoliday) {
+                                        $isWeekend = function () use ($dayName) {
+                                            return in_array($dayName, ['Friday', 'Saturday']);
+                                        };
 
-                                                $status = 'GH';
-                                            }
-                                            // Check for Weekends
-                                            elseif ($dayName == 'Friday' || $dayName == 'Saturday') {
-                                                $status = 'Off';
-                                            }
-                                            // Check for Meetings
-                                            elseif (!$employee?->meetings->isEmpty()) {
-                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
-                                                if (in_array($attendanceDate, $meetingDates)) {
-                                                    $status = 'Meeting';
-                                                }
-                                            }
+                                        $hasMeeting = function () use ($employee, $attendanceDate) {
+                                            return !$employee?->meetings->isEmpty() && in_array($attendanceDate, $employee?->meetings->pluck('date')->toArray());
+                                        };
 
-                                            // Check for Meetings
-                                            elseif (!$employee?->meetings->isEmpty() && $attendance->status == 'Present') {
-                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
-                                                if (in_array($attendanceDate, $meetingDates)) {
-                                                    $status = 'P_Meeting';
-                                                }
-                                            }
-                                            elseif (!$employee?->meetings->isEmpty() && $attendance->status == 'Absent') {
-                                                $meetingDates = $employee?->meetings->pluck('date')->toArray();
-                                                if (in_array($attendanceDate, $meetingDates)) {
-                                                    $status = 'Meeting';
-                                                }
-                                            }
-                                            elseif($attendance->status == 'Present' && $attendance->late !== "00:00:00" && $attendance->early_leaving === "00:00:00"){
+                                        $isOnLeave = function () use ($employee, $attendanceDate) {
+                                            return !$employee?->leaves->isEmpty() && $employee?->leaves->firstWhere(function ($leave) use ($attendanceDate) {
+                                                return $leave->start_date <= $attendanceDate && $leave->end_date >= $attendanceDate;
+                                            });
+                                        };
+
+                                        // Determine the status
+                                        if ($isHoliday()) {
+                                            $status = 'GH';
+                                        } elseif ($isWeekend()) {
+                                            $status = 'Off';
+                                        } elseif ($isOnLeave()) {
+                                            $status = 'Leave';
+                                        } elseif ($hasMeeting() && $attendance->status == 'Absent') {
+                                            $status = 'Meeting';
+                                        } elseif ($hasMeeting() && $attendance->status == 'Present') {
+                                            $status = 'P_Meeting';
+                                        } elseif ($attendance->status == 'Present') {
+                                            if ($attendance->late !== "00:00:00" && $attendance->early_leaving === "00:00:00") {
                                                 $status = 'Late';
-                                            }
-                                            elseif($attendance->status == 'Present' && $attendance->late === "00:00:00" && $attendance->early_leaving !== "00:00:00"){
+                                            } elseif ($attendance->late === "00:00:00" && $attendance->early_leaving !== "00:00:00") {
                                                 $status = 'Early_leaving';
-                                            }
-                                            elseif($attendance->status == 'Present' && $attendance->late !== "00:00:00" && $attendance->early_leaving != "00:00:00"){
+                                            } elseif ($attendance->late !== "00:00:00" && $attendance->early_leaving !== "00:00:00") {
                                                 $status = 'late_early_leave';
                                             }
+                                        }
 
+                                        // Define badge classes and labels
+                                        $badgeStyles = [
+                                            'Meeting' => ['class' => 'bg-primary', 'label' => 'Meeting'],
+                                            'P_Meeting' => ['class' => 'bg-primary', 'label' => 'Present/M'],
+                                            'Present' => ['class' => 'bg-success', 'label' => 'Present'],
+                                            'GH' => ['class' => 'bg-info', 'label' => 'G/Holiday'],
+                                            'Off' => ['class' => 'bg-info', 'label' => 'Holiday'],
+                                            'Leave' => ['class' => 'bg-danger', 'label' => 'Leave'],
+                                            'Absent' => ['class' => 'bg-danger', 'label' => 'Absent'],
+                                            'Late' => ['class' => 'bg-warning', 'label' => 'Present/L'],
+                                            'Early_leaving' => ['class' => 'bg-warning', 'label' => 'Present/EL'],
+                                            'late_early_leave' => ['class' => 'bg-warning', 'label' => 'Present/L/EL'],
+                                        ];
 
+                                        $badgeClass = $badgeStyles[$status]['class'];
+                                        $badgeLabel = $badgeStyles[$status]['label'];
+                                    @endphp
 
-                                            // Check for Leave
-                                            elseif (!$employee?->leaves->isEmpty()) {
-                                                $leave = $employee?->leaves->firstWhere(function ($leave) use (
-                                                    $attendanceDate,
-                                                ) {
-                                                    return $leave->start_date <= $attendanceDate &&
-                                                        $leave->end_date >= $attendanceDate;
-                                                });
-                                                if ($leave) {
-                                                    $status = 'Leave';
-                                                }
-                                            }
-
-                                            // Define badge classes and labels
-                                            $badgeStyles = [
-                                                'Meeting' => ['class' => 'bg-primary', 'label' => 'Present/M'],
-                                                'Present' => ['class' => 'bg-success', 'label' => 'Present'],
-                                                'GH' => ['class' => 'bg-info', 'label' => 'G/Holiday'],
-                                                'Off' => ['class' => 'bg-info', 'label' => 'Holiday'],
-                                                'Leave' => ['class' => 'bg-danger', 'label' => 'Leave'],
-                                                'Absent' => ['class' => 'bg-danger', 'label' => 'Absent'],
-                                                'Late' => ['class' => 'bg-warning', 'label' => 'Present/L'],
-                                                'Early_leaving' => ['class' => 'bg-warning', 'label' => 'Present/EL'],
-                                                'late_early_leave' => ['class' => 'bg-warning', 'label' => 'Present/L/EL'],
-                                            ];
-
-                                            $badgeClass = $badgeStyles[$status]['class'];
-                                            $badgeLabel = $badgeStyles[$status]['label'];
-                                        @endphp
-
-                                        <td>
-                                            <span class="badge {{ $badgeClass }}">
-                                                {{ $badgeLabel }}
-                                            </span>
-                                        </td>
-
-                                    </tr>
-                                @endforeach
+                                    <td>
+                                        <span class="badge {{ $badgeClass }}">
+                                            {{ $badgeLabel }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
                             </tbody>
                         </table>
                     </div>

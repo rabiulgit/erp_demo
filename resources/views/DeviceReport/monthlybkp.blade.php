@@ -330,12 +330,8 @@
                                             <td>{{ $attendance['name'] }}</td>
                                             @foreach ($attendance['status'] as $status)
                                                 <td>
-                                                    @if ($status == 'AM')
-                                                        <i class="badge bg-info p-2 rounded">{{ __('A/M') }}</i>
-                                                    @elseif($status == 'PM')
-                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(81, 7, 255); color: white;">
-                                                            {{ __('P/') }} {{ __('M') }}
-                                                        </span>
+                                                    @if ($status == 'M')
+                                                        <i class="badge bg-info p-2 rounded">{{ __('P/M') }}</i>
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
                                                     @elseif($status == 'PL')
@@ -352,13 +348,13 @@
                                                             {{ __('P/') }} {{ __('L/EL') }}
                                                         </span>
                                                     @elseif($status == 'A')
-                                                        <i class="badge bg-danger p-2 rounded">{{ __('A') }}</i>
+                                                        <i class="badge bg-warning p-2 rounded">{{ __('L') }}</i>
                                                     @elseif($status == 'off')
-                                                        <i class="badge bg-info p-2 rounded">{{ __('H') }}</i>
+                                                        <i class="badge bg-danger p-2 rounded">{{ __('H') }}</i>
                                                     @elseif($status == 'GH')
                                                         <i class="badge bg-danger p-2 rounded">{{ __('GH') }}</i>
-                                                    @elseif($status == 'L')
-                                                    <i class="badge bg-primary p-2 rounded">{{ __('L') }}</i>
+                                                    @elseif($status == 'AA')
+                                                    <i class="badge bg-danger p-2 rounded">{{ __('A') }}</i>
                                                     @endif
                                                 </td>
                                             @endforeach
