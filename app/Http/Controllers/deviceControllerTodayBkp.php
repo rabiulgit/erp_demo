@@ -106,68 +106,46 @@ class DeviceReportController extends Controller
                                 $total_meetings += 1;
                             }
                         }
-
-
-                        if (!empty($employeeAttendance) && $employeeAttendance?->date) {
-
-                            if ($employeeAttendance->late !== "00:00:00") {
-
-                                $lateTime = Carbon::parse($employeeAttendance->late);
-                                $lateHours += $lateTime->hour; // Get hours
-                                $lateMins += $lateTime->minute; // Get minutes
-                                $lateDays += 1;
-                            }
-                            if ($employeeAttendance->early_leaving != "00:00:00") {
-                                $early_leaving = Carbon::parse($employeeAttendance->early_leaving);
-                                // Add hours and minutes from late time
-                                $earlyleaveHours += $early_leaving->hour; // Get hours
-                                $earlyleaveMins += $early_leaving->minute; // Get minutes
-                                $earlyLeaveDays += 1;
-                            }
-                            if ($employeeAttendance->overtime != "00:00:00") {
-                                $overtime = Carbon::parse($employeeAttendance->overtime);
-                                // Add hours and minutes from late time
-                                $ovetimeHours += $overtime->hour; // Get hours
-                                $overtimeMins += $overtime->minute; // Get minutes
-                                $totalOverTimeDays += 1;
-                            }
-
-                            if ($employee_meeting && $employeeAttendance->status == 'Absent') {
-                                $attendanceStatus[$date] = 'AM';
-                            } else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
-                                $attendanceStatus[$date] = 'P';
-                                $totalPresent += 1;
-                            } else if ($employee_meeting && $employeeAttendance->status == 'Present') {
-                                $attendanceStatus[$date] = 'PM';
-                                $totalPresent += 1;
-                            } else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
-                                $attendanceStatus[$date] = 'PL';
-                                $totalPresent += 1;
-                            } else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving !== "00:00:00") {
-                                $attendanceStatus[$date] = 'PEL';
-                                $totalPresent += 1;
-                            } elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
-                                $attendanceStatus[$date] = 'PLEL';
-                            } elseif ($employee_leave) {
-                                $attendanceStatus[$date] = 'L';
-                                $totalLeave += 1;
-                            } elseif ($government_holiday) {
-                                $attendanceStatus[$date] = 'GH';
-                            } elseif ($dayName == "Friday" || $dayName == "Saturday") {
-                                $attendanceStatus[$date] = 'off';
-                            } elseif (!$employee_leave && !$employee_meeting &&  $employeeAttendance->status == 'Absent') {
-                                $attendanceStatus[$date] = 'A';
-                                $totalAbsent += 1;
+                        if ($employee_meeting && $employeeAttendance->status == 'Absent') {
+                            $attendanceStatus[$date] = 'AM';
+                        }
+                        else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
+                            $attendanceStatus[$date] = 'P';
+                            $totalPresent += 1;
+                        }
+                        else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
+                            $attendanceStatus[$date] = 'PL';
+                            $totalPresent += 1;
+                        }
+                        else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving !== "00:00:00") {
+                            $attendanceStatus[$date] = 'PEL';
+                            $totalPresent += 1;
+                        }
+                         else if ($employee_meeting && $employeeAttendance->status == 'Present') {
+                            $attendanceStatus[$date] = 'PM';
+                            $totalPresent += 1;
+                        }
+                        elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
+                            $attendanceStatus[$date] = 'PLEL';
+                        }
+                        elseif ($employee_leave) {
+                            $attendanceStatus[$date] = 'A';
+                            $totalLeave += 1;
+                        } elseif ($government_holiday) {
+                            $attendanceStatus[$date] = 'GH';
+                        } elseif ($dayName == "Friday" || $dayName == "Saturday") {
+                            $attendanceStatus[$date] = 'off';
+                        }
+                         elseif ($employeeAttendance->status == 'Absent') {
+                            $attendanceStatus[$date] = 'AA';
+                            $totalAbsent += 1;
                             } else {
                                 $attendanceStatus[$date] = '';
                             }
-                        } else {
-                            $attendanceStatus[$date] = '';
-                        }
 
                         if (!empty($employeeAttendance) && $employeeAttendance?->date) {
 
-                            if ($employeeAttendance->status == 'Present') {
+                          if($employeeAttendance->status == 'Present') {
 
                                 if ($employeeAttendance->overtime != "00:00:00") {
                                     $overtime = Carbon::parse($employeeAttendance->overtime);
@@ -192,6 +170,7 @@ class DeviceReportController extends Controller
                                     $lateDays += 1;
                                 }
                             }
+
                         }
                     }
                 }
@@ -216,7 +195,7 @@ class DeviceReportController extends Controller
                 $data['earlyLeaveDays'] = $earlyLeaveDays;
                 $data['totalOverTimeDays'] = $totalOverTimeDays;
                 $data['totalMeetings'] = $total_meetings;
-                $data['employee_causes'] = EmployeeCause::with('employee')->where('created_by', Auth()->id())->get();
+                $data['employee_causes'] = EmployeeCause::with('employee')->where('created_by',Auth()->id())->get();
 
                 return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
             } else {
@@ -236,11 +215,12 @@ class DeviceReportController extends Controller
                 // Employee base query
                 $employees = Employee::active()->with(['leaves', 'meetings']);
 
+
                 // Employees attendance filter base on employee selection
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
                     $employees->whereIn('id', $request->employee_id);
-                    $data['employee_causes'] = EmployeeCause::with('employee')->whereIn('employee_id', $request->employee_id)->get();
-                } else {
+                    $data['employee_causes'] = EmployeeCause::with('employee')->whereIn('employee_id',$request->employee_id)->get();
+                }else{
                     $data['employee_causes'] = [];
                 }
 
@@ -279,6 +259,7 @@ class DeviceReportController extends Controller
                 for ($i = 1; $i <= $num_of_days; $i++) {
                     $dates[] = str_pad($i, 2, '0', STR_PAD_LEFT);
                 }
+
                 // defined initial data
                 $employeesAttendance = [];
                 $totalPresent = $totalLeave = $totalEarlyLeave =  $total_meetings = $earlyLeaveDays = $totalOverTimeDays = $totalAbsent =  0;
@@ -340,6 +321,8 @@ class DeviceReportController extends Controller
                                 }
                             }
 
+
+
                             if (!empty($employeeAttendance) && $employeeAttendance?->date) {
 
                                 if ($employeeAttendance->late !== "00:00:00") {
@@ -366,30 +349,43 @@ class DeviceReportController extends Controller
 
                                 if ($employee_meeting && $employeeAttendance->status == 'Absent') {
                                     $attendanceStatus[$date] = 'AM';
-                                } else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
+                                }
+                                else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                                     $attendanceStatus[$date] = 'P';
                                     $totalPresent += 1;
-                                } else if ($employee_meeting && $employeeAttendance->status == 'Present') {
-                                    $attendanceStatus[$date] = 'PM';
-                                    $totalPresent += 1;
-                                } else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
+
+                                }
+                                else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                                     $attendanceStatus[$date] = 'PL';
                                     $totalPresent += 1;
-                                } else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving !== "00:00:00") {
+
+                                }
+                                else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving !== "00:00:00") {
                                     $attendanceStatus[$date] = 'PEL';
                                     $totalPresent += 1;
-                                } elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
+
+                                }
+                                 else if ($employee_meeting && $employeeAttendance->status == 'Present') {
+                                    $attendanceStatus[$date] = 'PM';
+                                    $totalPresent += 1;
+
+                                }
+
+                                elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
                                     $attendanceStatus[$date] = 'PLEL';
-                                } elseif ($employee_leave) {
-                                    $attendanceStatus[$date] = 'L';
+
+                                }
+                                elseif ($employee_leave) {
+                                    $attendanceStatus[$date] = 'A';
                                     $totalLeave += 1;
                                 } elseif ($government_holiday) {
                                     $attendanceStatus[$date] = 'GH';
                                 } elseif ($dayName == "Friday" || $dayName == "Saturday") {
                                     $attendanceStatus[$date] = 'off';
-                                } elseif (!$employee_leave && !$employee_meeting &&  $employeeAttendance->status == 'Absent') {
-                                    $attendanceStatus[$date] = 'A';
-                                    $totalAbsent += 1;
+                                }
+                             elseif ($employeeAttendance->status == 'Absent') {
+                                $attendanceStatus[$date] = 'AA';
+                                $totalAbsent += 1;
                                 } else {
                                     $attendanceStatus[$date] = '';
                                 }
@@ -419,8 +415,10 @@ class DeviceReportController extends Controller
                 $data['totalOverTimeDays'] = $totalOverTimeDays;
                 $data['curMonth'] = $curMonth;
 
-                return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
-            } else {
+            return view('DeviceReport.monthlyAttendance', compact('employeesAttendance', 'branch', 'department', 'dates', 'data'));
+
+        }
+            else {
                 return redirect()->back()->with('error', __('Permission denied.'));
             }
         }
