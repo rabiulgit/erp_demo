@@ -333,7 +333,9 @@
                                                     @if ($status == 'AM')
                                                         <i class="badge bg-info p-2 rounded">{{ __('A/M') }}</i>
                                                     @elseif($status == 'PM')
-                                                        <i class="badge bg-success p-2 rounded">{{ __('P/M') }}</i>
+                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(81, 7, 255); color: white;">
+                                                            {{ __('P/') }} {{ __('M') }}
+                                                        </span>
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
                                                     @elseif($status == 'PL')
@@ -352,7 +354,7 @@
                                                     @elseif($status == 'A')
                                                         <i class="badge bg-danger p-2 rounded">{{ __('A') }}</i>
                                                     @elseif($status == 'off')
-                                                        <i class="badge bg-danger p-2 rounded">{{ __('H') }}</i>
+                                                        <i class="badge bg-info p-2 rounded">{{ __('H') }}</i>
                                                     @elseif($status == 'GH')
                                                         <i class="badge bg-danger p-2 rounded">{{ __('GH') }}</i>
                                                     @elseif($status == 'L')
