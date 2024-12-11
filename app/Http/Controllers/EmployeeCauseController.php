@@ -56,7 +56,6 @@ class EmployeeCauseController extends Controller
             return response()->json(['error' => __('Only for Employees.')], 401);
         }
 
-
     }
 
     public function update(EmployeeCauseRequest $request, EmployeeCause $employee_cause)
