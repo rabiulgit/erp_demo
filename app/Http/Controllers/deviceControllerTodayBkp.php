@@ -109,16 +109,9 @@ class DeviceReportController extends Controller
                         if ($employee_meeting && $employeeAttendance->status == 'Absent') {
                             $attendanceStatus[$date] = 'AM';
                         }
-
                         else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                             $attendanceStatus[$date] = 'P';
                             $totalPresent += 1;
-
-                        }
-                        else if ($employee_meeting && $employeeAttendance->status == 'Present' ) {
-                            $attendanceStatus[$date] = 'PM';
-                            $totalPresent += 1;
-
                         }
                         else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                             $attendanceStatus[$date] = 'PL';
@@ -128,27 +121,27 @@ class DeviceReportController extends Controller
                             $attendanceStatus[$date] = 'PEL';
                             $totalPresent += 1;
                         }
-
+                         else if ($employee_meeting && $employeeAttendance->status == 'Present') {
+                            $attendanceStatus[$date] = 'PM';
+                            $totalPresent += 1;
+                        }
                         elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
                             $attendanceStatus[$date] = 'PLEL';
                         }
                         elseif ($employee_leave) {
-                            $attendanceStatus[$date] = 'L';
+                            $attendanceStatus[$date] = 'A';
                             $totalLeave += 1;
                         } elseif ($government_holiday) {
                             $attendanceStatus[$date] = 'GH';
                         } elseif ($dayName == "Friday" || $dayName == "Saturday") {
                             $attendanceStatus[$date] = 'off';
                         }
-                     elseif (!$employee_leave && !$employee_meeting &&  $employeeAttendance->status == 'Absent') {
-                        $attendanceStatus[$date] = 'A';
-                        $totalAbsent += 1;
-                        } else {
-                            $attendanceStatus[$date] = '';
-                        }
-                    } else {
-                        $attendanceStatus[$date] = '';
-                    }
+                         elseif ($employeeAttendance->status == 'Absent') {
+                            $attendanceStatus[$date] = 'AA';
+                            $totalAbsent += 1;
+                            } else {
+                                $attendanceStatus[$date] = '';
+                            }
 
                         if (!empty($employeeAttendance) && $employeeAttendance?->date) {
 
@@ -221,6 +214,7 @@ class DeviceReportController extends Controller
                 $data['department'] = __('All');
                 // Employee base query
                 $employees = Employee::active()->with(['leaves', 'meetings']);
+
 
                 // Employees attendance filter base on employee selection
                 if (!empty($request->employee_id) && $request->employee_id[0] != 0) {
@@ -317,8 +311,6 @@ class DeviceReportController extends Controller
                                     }
                                 }
 
-
-
                                 if (!$employee->meetings->isEmpty()) {
                                     $meetingDates = $employee->meetings->pluck('date')->toArray();
                                     if (in_array($employeeAttendance?->date, $meetingDates)) {
@@ -358,39 +350,41 @@ class DeviceReportController extends Controller
                                 if ($employee_meeting && $employeeAttendance->status == 'Absent') {
                                     $attendanceStatus[$date] = 'AM';
                                 }
-
                                 else if (!$employee_meeting && $employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                                     $attendanceStatus[$date] = 'P';
-                                    $totalPresent += 1;
-
-                                }
-                                else if ($employee_meeting && $employeeAttendance->status == 'Present' ) {
-                                    $attendanceStatus[$date] = 'PM';
                                     $totalPresent += 1;
 
                                 }
                                 else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving === "00:00:00") {
                                     $attendanceStatus[$date] = 'PL';
                                     $totalPresent += 1;
+
                                 }
                                 else if ($employeeAttendance->status == 'Present' && $employeeAttendance->late === "00:00:00" && $employeeAttendance->early_leaving !== "00:00:00") {
                                     $attendanceStatus[$date] = 'PEL';
                                     $totalPresent += 1;
+
+                                }
+                                 else if ($employee_meeting && $employeeAttendance->status == 'Present') {
+                                    $attendanceStatus[$date] = 'PM';
+                                    $totalPresent += 1;
+
                                 }
 
                                 elseif ($employeeAttendance->status == 'Present' && $employeeAttendance->late !== "00:00:00" && $employeeAttendance->early_leaving != "00:00:00") {
                                     $attendanceStatus[$date] = 'PLEL';
+
                                 }
                                 elseif ($employee_leave) {
-                                    $attendanceStatus[$date] = 'L';
+                                    $attendanceStatus[$date] = 'A';
                                     $totalLeave += 1;
                                 } elseif ($government_holiday) {
                                     $attendanceStatus[$date] = 'GH';
                                 } elseif ($dayName == "Friday" || $dayName == "Saturday") {
                                     $attendanceStatus[$date] = 'off';
                                 }
-                             elseif (!$employee_leave && !$employee_meeting &&  $employeeAttendance->status == 'Absent') {
-                                $attendanceStatus[$date] = 'A';
+                             elseif ($employeeAttendance->status == 'Absent') {
+                                $attendanceStatus[$date] = 'AA';
                                 $totalAbsent += 1;
                                 } else {
                                     $attendanceStatus[$date] = '';

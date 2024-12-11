@@ -226,7 +226,8 @@
 
                                             // Define badge classes and labels
                                             $badgeStyles = [
-                                                'Meeting' => ['class' => 'bg-primary', 'label' => 'Present/M'],
+                                                'Meeting' => ['class' => 'bg-primary', 'label' => 'Meeting'],
+                                                'P_Meeting' => ['class' => 'bg-primary', 'label' => 'Present/M'],
                                                 'Present' => ['class' => 'bg-success', 'label' => 'Present'],
                                                 'GH' => ['class' => 'bg-info', 'label' => 'G/Holiday'],
                                                 'Off' => ['class' => 'bg-info', 'label' => 'Holiday'],
