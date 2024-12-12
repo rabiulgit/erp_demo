@@ -45,8 +45,8 @@ class PayslipExport implements FromCollection, WithHeadings
             $result[] = array(
                 'employee_id'=> !empty($payslip->employees) ? $payslip->employees->employee_id : '',
                 'employee_name' => (!empty($payslip->employees)) ? $payslip->employees->name : '',
-                'basic_salary' => \Auth::user()->priceFormat($payslip->basic_salary),
-                'net_salary' =>  \Auth::user()->priceFormat($payslip->net_payble),
+                'basic_salary' => $payslip->basic_salary,
+                'net_salary' =>  $payslip->net_payble,
                 'status' =>  $payslip->status == 0 ? 'UnPaid' :  'Paid',
                 'account_holder_name' =>  (!empty($payslip->employees)) ? $payslip->employees->account_holder_name : '',
                 'account_number' =>  (!empty($payslip->employees)) ? $payslip->employees->account_number : '',

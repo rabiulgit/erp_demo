@@ -9,19 +9,33 @@
 @push('script-page')
     <script type="text/javascript" src="{{ asset('js/html2pdf.bundle.min.js') }}"></script>
     <script>
-        var filename = $('#filename').val();
 
+        var filename = $('#filename').val();
         function saveAsPDF() {
             var element = document.getElementById('printableArea');
             var opt = {
                 margin: 0.3,
                 filename: filename,
-                image: {type: 'jpeg', quality: 1},
-                html2canvas: {scale: 4, dpi: 72, letterRendering: true},
-                jsPDF: {unit: 'in', format: 'A2'}
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 4, dpi: 72, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'A2', orientation: 'landscape' } // Set orientation to landscape
             };
             html2pdf().set(opt).from(element).save();
         }
+
+
+        // function saveAsPDF() {
+        //     var element = document.getElementById('printableArea');
+        //     var opt = {
+        //         margin: 0.3,
+        //         filename: filename,
+        //         image: {type: 'jpeg', quality: 1},
+        //         html2canvas: {scale: 4, dpi: 72, letterRendering: true},
+        //         jsPDF: {unit: 'in', format: 'A2'}
+        //     };
+        //     html2pdf().set(opt).from(element).save();
+        // }
+
     </script>
 
     <script>
@@ -229,7 +243,6 @@
             </div>
         </div>
 
-
         <div class="row">
             <div class="col-xl-4 col-md-6 col-lg-3">
                 <div class="card p-4 mb-4">
@@ -237,6 +250,7 @@
                     <h7 class="text-sm mb-0">{{ __('Total present') }} : {{ $data['totalPresent'] }}</h7>
                     <h7 class="text-sm mb-0">{{ __('Total leave') }} : {{ $data['totalLeave'] }}</h7>
                     <h7 class="text-sm mb-0">{{ __('Total meeting') }} : {{ @$data['totalMeetings'] }}</h7>
+                    <h7 class="text-sm mb-0">{{ __('Total Absent') }} : {{ @$data['totalAbsentDays'] }}</h7>
                 </div>
             </div>
             <div class="col-xl-4 col-md-6 col-lg-3">
@@ -262,6 +276,7 @@
             </div> --}}
         </div>
 
+        @if(!empty($data['employee_causes']))
         <div class="col-xl-12 col-md-12 col-lg-3">
             <div class="card p-4 mb-4">
                 <table class="table">
@@ -291,8 +306,7 @@
                   </table>
             </div>
         </div>
-
-
+        @endif
 
         <div class="row">
             <div class="col">
@@ -311,20 +325,40 @@
                                 <tbody>
 
                                     @foreach ($employeesAttendance as $attendance)
+
                                         <tr>
                                             <td>{{ $attendance['name'] }}</td>
                                             @foreach ($attendance['status'] as $status)
                                                 <td>
-                                                    @if ($status == 'M')
-                                                        <i class="badge bg-info p-2 rounded">{{ __('P/M') }}</i>
+                                                    @if ($status == 'AM')
+                                                        <i class="badge bg-info p-2 rounded">{{ __('A/M') }}</i>
+                                                    @elseif($status == 'PM')
+                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(81, 7, 255); color: white;">
+                                                            {{ __('P/') }} {{ __('M') }}
+                                                        </span>
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
+                                                    @elseif($status == 'PL')
+                                                    <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid #ffc107; color: white;">
+                                                        {{ __('P/') }} {{ __('L') }}
+                                                    </span>
+
+                                                    @elseif($status == 'PEL')
+                                                    <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid #fcf400; color: white;">
+                                                        {{ __('P/') }} {{ __('EL') }}
+                                                    </span>
+                                                    @elseif($status == 'PLEL')
+                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(255, 7, 7); color: white;">
+                                                            {{ __('P/') }} {{ __('L/EL') }}
+                                                        </span>
                                                     @elseif($status == 'A')
-                                                        <i class="badge bg-warning p-2 rounded">{{ __('L') }}</i>
+                                                        <i class="badge bg-danger p-2 rounded">{{ __('A') }}</i>
                                                     @elseif($status == 'off')
-                                                        <i class="badge bg-danger p-2 rounded">{{ __('H') }}</i>
+                                                        <i class="badge bg-info p-2 rounded">{{ __('H') }}</i>
                                                     @elseif($status == 'GH')
                                                         <i class="badge bg-danger p-2 rounded">{{ __('GH') }}</i>
+                                                    @elseif($status == 'L')
+                                                    <i class="badge bg-primary p-2 rounded">{{ __('L') }}</i>
                                                     @endif
                                                 </td>
                                             @endforeach

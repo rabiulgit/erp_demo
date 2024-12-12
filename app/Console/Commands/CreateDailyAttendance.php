@@ -29,7 +29,7 @@ class CreateDailyAttendance extends Command
      */
    public function handle()
    {
-    $employees = Employee::all();
+    $employees = Employee::active()->all();
 
     foreach ($employees as $employee) {
         try {
@@ -54,7 +54,7 @@ class CreateDailyAttendance extends Command
                 $employeeAttendance->overtime = '00:00:00';
                 $employeeAttendance->total_rest = '00:00:00';
                 $employeeAttendance->save();
-                
+
                 // Log success
                 Log::info("Attendance record created for employee ID: {$employee->employee_id}");
             } else {

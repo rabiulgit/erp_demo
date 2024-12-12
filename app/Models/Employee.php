@@ -59,6 +59,10 @@ class Employee extends Model
         'created_by',
     ];
 
+    public function scopeActive($query){
+        return $query->where('is_active',1);
+    }
+
     public function documents()
     {
         return $this->hasMany('App\Models\EmployeeDocument', 'employee_id', 'employee_id')->get();
@@ -426,7 +430,7 @@ class Employee extends Model
 
     public function meetings()
     {
-        return $this->hasMany(SingleMeeting::class,'employee_id'); 
+        return $this->hasMany(SingleMeeting::class,'employee_id');
     }
-    
+
 }

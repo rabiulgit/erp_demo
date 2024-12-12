@@ -81,32 +81,52 @@
                 <tbody>
                     @php
                         $sn = 1;
+                        $totalBasicSalary = 0;
+                        $totalNetSalary = 0;
                     @endphp
+
                     @foreach ($payslipData as $data)
+                        @php
+                            // Convert salary fields to numeric values
+                            $basicSalary = (float) $data['basic_salary'];
+                            $netSalary = (float) $data['net_salary'];
+
+                            // Accumulate totals
+                            $totalBasicSalary += $basicSalary;
+                            $totalNetSalary += $netSalary;
+                        @endphp
                         <tr>
                             <td>{{ $sn++ }}</td>
                             <td>{{ $data['employee_id'] }}</td>
                             <td class="text-start">{{ $data['employee_name'] }}</td>
-                            <td>{{ $data['basic_salary'] }}</td>
-                            <td>{{ $data['net_salary'] }}</td>
+                            <td>{{ \Auth::user()->priceFormat($basicSalary) }}</td>
+                            <td>{{ \Auth::user()->priceFormat($netSalary) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">{{ __('Total') }}</th>
+                        <th>{{ \Auth::user()->priceFormat($totalBasicSalary) }}</th>
+                        <th>{{ \Auth::user()->priceFormat($totalNetSalary) }}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
+
         <!-- Signature Section -->
-        <div class="row mt-5">
-            <div class="col-md-4 text-center mt-5">
+        <div class="row mt-2">
+            <div class="col-md-4 text-center mt-3">
                 <p></p>
                 <div style="border-bottom: 1px solid black; width: 60%; margin: 0 auto;"></div>
                 <p class="mt-3"><strong>Managing Director</strong></p>
             </div>
-            <div class="col-md-4 text-center mt-5">
+            <div class="col-md-4 text-center mt-3">
                 <p></p>
                 <div style="border-bottom: 1px solid black; width: 60%; margin: 0 auto;"></div>
                 <p class="mt-3"><strong>CEO</strong></p>
             </div>
-            <div class="col-md-4 text-center mt-5">
+            <div class="col-md-4 text-center mt-3">
                 <p></p>
                 <div style="border-bottom: 1px solid black; width: 60%; margin: 0 auto;"></div>
                 <p class="mt-3"><strong>Finance</strong></p>

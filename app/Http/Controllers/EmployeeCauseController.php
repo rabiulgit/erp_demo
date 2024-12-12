@@ -12,7 +12,7 @@ class EmployeeCauseController extends Controller
 {
     public function index()
     {
-        if (@Auth::user()?->type == 'Employee') {
+        if (Auth::user()->type == 'Employee') {
             $EmployeeCauses = EmployeeCause::where('created_by', '=', Auth::id())->get();
         } else {
             $EmployeeCauses = EmployeeCause::orderBy('id', 'desc')->get();
@@ -24,11 +24,15 @@ class EmployeeCauseController extends Controller
     public function create()
     {
         // Allow only employees to access this endpoint
-        if (\Auth::user()->type !== 'Employee') {
-            return response()->json(['error' => __('Only for Employees.')], 401);
+        if (Auth::user()->type == 'Employee' || Auth::user()->type == 'HR') {
+            // Allow access for Employees or HR
+            return view('employee-cause.create');
+        } else {
+            // Deny access and return an error
+            return response()->json(['error' => __('Only for Employees or HR.')], 401);
         }
-        // Return the create view with required data
-        return view('employee-cause.create');
+
+
     }
 
     public function store(EmployeeCauseRequest $request)
@@ -43,19 +47,20 @@ class EmployeeCauseController extends Controller
 
     public function edit($id)
     {
-        // Allow only employees to access this endpoint
-        if (Auth::user()->type !== 'Employee') {
+        if (Auth::user()->type == 'Employee' || Auth::user()->type == 'HR') {
+            $EmployeeCause = EmployeeCause::findOrFail($id);
+            // Return the edit view with the required data
+            return view('employee-cause.edit', compact('EmployeeCause'));
+        } else {
+            // Deny access and return an error
             return response()->json(['error' => __('Only for Employees.')], 401);
         }
-        // Fetch the single meeting with its related branch
-        $EmployeeCause = EmployeeCause::findOrFail($id);
-        // Return the edit view with the required data
-        return view('employee-cause.edit', compact('EmployeeCause'));
+
     }
 
     public function update(EmployeeCauseRequest $request, EmployeeCause $employee_cause)
     {
-        if (Auth::user()->type == 'Employee') {
+        if (Auth::user()->type == 'Employee' || Auth::user()->type == 'HR') {
             // Call the service to create or update the machine
             $response = EmployeeCauseService::createOrUpdateEmployeeCause($request->validated(), $employee_cause);
             // Redirect back with appropriate message
