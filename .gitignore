@@ -16,6 +16,9 @@
 /storage/framework/views/*
 /storage/framework/cache/*
 /storage/logs/laravel.log
+/storage/logs/*
+/storage
+
 
 # Environment files
 .env
@@ -38,3 +41,6 @@ auth.json
 # Logs
 npm-debug.log
 yarn-error.log
+
+
+
