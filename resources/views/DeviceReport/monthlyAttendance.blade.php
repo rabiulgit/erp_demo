@@ -330,7 +330,7 @@
                                             @foreach ($attendance['status'] as $status)
                                                 <td>
                                                     @if ($status == 'AM')
-                                                        <i class="badge bg-info p-2 rounded">{{ __('A/M') }}</i>
+                                                        <i class="badge bg-primary p-2 rounded">{{ __('A/M') }}</i>
                                                     @elseif($status == 'PM')
                                                         <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(81, 7, 255); color: white;">
                                                             {{ __('P/') }} {{ __('M') }}
