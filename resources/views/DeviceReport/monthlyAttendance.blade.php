@@ -276,7 +276,7 @@
             </div> --}}
         </div>
 
-        @if(!empty($data['employee_causes']))
+        @if(count($data['employee_causes']) > 0)
         <div class="col-xl-12 col-md-12 col-lg-3">
             <div class="card p-4 mb-4">
                 <table class="table">
@@ -325,7 +325,6 @@
                                 <tbody>
 
                                     @foreach ($employeesAttendance as $attendance)
-
                                         <tr>
                                             <td>{{ $attendance['name'] }}</td>
                                             @foreach ($attendance['status'] as $status)
@@ -335,6 +334,10 @@
                                                     @elseif($status == 'PM')
                                                         <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid rgb(81, 7, 255); color: white;">
                                                             {{ __('P/') }} {{ __('M') }}
+                                                        </span>
+                                                    @elseif($status == 'PLM')
+                                                        <span class="badge p-2 rounded" style="background-color: #29e354; border: 2px solid #0749ff; color: white;">
+                                                            {{ __('P/L/') }} {{ __('M') }}
                                                         </span>
                                                     @elseif($status == 'P')
                                                         <i class="badge bg-success p-2 rounded">{{ __('P') }}</i>
