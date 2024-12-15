@@ -180,6 +180,7 @@ class DeviceReportController extends Controller
                                     $government_holiday => "GH",
                                     $dayName === 'Friday' || $dayName === 'Saturday' => "off",
                                     !$employee_leave && !$employee_meeting && $employeeAttendance->status === 'Absent' => 'A',
+                                    !$employee_leave && $employee_meeting && $employeeAttendance->status === 'Absent' => 'AM',
                                     !$employee_leave && !$employee_meeting && $employeeAttendance->status === 'Present' && !$isLate && !$isEarlyLeave && !$isLateEarlyLeave => 'P',
                                     $employee_meeting && $employeeAttendance->status === 'Present' => match (true) {
                                         $totalPresent++,
@@ -189,7 +190,7 @@ class DeviceReportController extends Controller
 
                                         default => "PM",
                                     },
-                                    $employeeAttendance->status === 'Present' => match (true) {
+                                    !$employee_meeting && $employeeAttendance->status === 'Present' => match (true) {
                                         $totalPresent++,
                                         $isLate => 'PL',
                                         $isEarlyLeave => 'PEL',
@@ -395,6 +396,7 @@ class DeviceReportController extends Controller
                                         $government_holiday => "GH",
                                         $dayName === 'Friday' || $dayName === 'Saturday' => "off",
                                         !$employee_leave && !$employee_meeting && $employeeAttendance->status === 'Absent' => 'A',
+                                        !$employee_leave && $employee_meeting && $employeeAttendance->status === 'Absent' => 'AM',
                                         !$employee_leave && !$employee_meeting && $employeeAttendance->status === 'Present' && !$isLate && !$isEarlyLeave && !$isLateEarlyLeave => 'P',
                                         $employee_meeting && $employeeAttendance->status === 'Present' => match (true) {
                                             $totalPresent++,
