@@ -148,15 +148,6 @@ class DeviceReportController extends Controller
                                 }
                             }
 
-                            if (!$employee->meetings->isEmpty()) {
-                                $meetingDates = $employee->meetings->pluck('date')->toArray();
-                                if (in_array($employeeAttendance?->date, $meetingDates)) {
-
-                                    $employee_meeting = true;
-                                    $total_meetings += 1;
-                                }
-                            }
-
                             if (!empty($employeeAttendance)) {
                                 // Initialize variables
                                 $isLate = $employeeAttendance->late !== "00:00:00";
