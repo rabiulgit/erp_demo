@@ -56,7 +56,7 @@ class DeviceReportController extends Controller
                     $date = Carbon::now();
                 }
 
-                $employee_causes = EmployeeCause::whereYear('date', $date->year)
+                $employee_causes = $employee_causes->whereYear('date', $date->year)
                                          ->whereMonth('date', $date->month);
 
                 // Calculate number of days in the given month
