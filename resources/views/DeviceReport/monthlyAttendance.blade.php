@@ -267,13 +267,6 @@
                     <h7 class="text-sm mb-0">{{ __('Early leave in hours') }} : {{ @number_format($data['totalEarlyLeave'], 2) }}</h7>
                 </div>
             </div>
-            {{-- <div class="col-xl-3 col-md-6 col-lg-3">
-                <div class="card p-4 mb-4">
-                    <h6 class="mb-0">{{ __('Overtime') }}</h6>
-                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ @number_format($data['totalOverTimeDays'], 2) }}</h7>
-                    <h7 class="text-sm mb-0">{{ __('Total overtime in hours') }} : {{ @number_format($data['totalOvertime'], 2) }}</h7>
-                </div>
-            </div> --}}
         </div>
 
         @if(count($data['employee_causes']) > 0)
